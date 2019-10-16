@@ -679,10 +679,11 @@ int main(int argc, char * argv [])
    * Print out an identifying string so folks can tell what version
    * they are running
    */
-  avrdude_message(MSG_NOTICE, "\n%s: Version %s\n"
+  avrdude_message(MSG_NOTICE, "\n%s: Version %s, compiled on %s at %s\n"
                     "%sCopyright (c) 2000-2005 Brian Dean, http://www.bdmicro.com/\n"
-                    "%sCopyright (c) 2007-2014 Joerg Wunsch\n\n",
-                    progname, version, progbuf, progbuf);
+                    "%sCopyright (c) 2007-2014 Joerg Wunsch\n"
+                    "%sModified 2019 by Alexander Weber\n\n",
+                    progname, version, __DATE__, __TIME__, progbuf, progbuf, progbuf);
   avrdude_message(MSG_NOTICE, "%sSystem wide configuration file is \"%s\"\n",
             progbuf, sys_config);
 

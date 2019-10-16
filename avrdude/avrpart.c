@@ -220,6 +220,7 @@ static char * avr_op_str(int op)
     case AVR_OP_WRITEPAGE   : return "WRITEPAGE"; break;
     case AVR_OP_CHIP_ERASE  : return "CHIP_ERASE"; break;
     case AVR_OP_PGM_ENABLE  : return "PGM_ENABLE"; break;
+    case AVR_OP_CRC         : return "CRC"; break;
     default : return "<unknown opcode>"; break;
   }
 }

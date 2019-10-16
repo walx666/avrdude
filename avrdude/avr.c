@@ -298,6 +298,106 @@ int avr_mem_hiaddr(AVRMEM * mem)
 }
 
 
+
+//int butterfly_crc16(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m, unsigned int page_size, unsigned int addr, unsigned int n_bytes, unsigned int * value)
+int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size, unsigned long addr, unsigned long n_bytes, unsigned int * value)
+{
+  unsigned char cmd[4];
+  unsigned char res[4];
+  unsigned int data;
+  int r;
+  OPCODE * readop, * lext;
+
+  if (page_size == 0)
+    page_size = mem->blocksize;
+
+  if (n_bytes == 0)
+    n_bytes = mem->size;
+
+  if (addr > page_size)
+    addr = 0;
+
+  pgm->pgm_led(pgm, ON);
+  pgm->err_led(pgm, OFF);
+
+//    while (avr_tpi_poll_nvmbsy(pgm));
+
+    /* setup for read */
+//    avr_tpi_setup_rw(pgm, mem, addr, TPI_NVMCMD_NO_OPERATION);
+
+    /* load byte */
+/*    cmd[0] = TPI_CMD_SLD;
+    r = pgm->cmd_tpi(pgm, cmd, 1, value, 1);
+    if (r == -1) 
+      return -1;
+
+    return 0; 
+  }
+*/
+  /*
+   * figure out what opcode to use
+   */
+/*  if (mem->op[AVR_OP_READ_LO]) {
+    if (addr & 0x00000001)
+      readop = mem->op[AVR_OP_READ_HI];
+    else
+      readop = mem->op[AVR_OP_READ_LO];
+    addr = addr / 2;
+  }
+  else
+  { 
+//    readop = mem->op[AVR_OP_CRC];
+  }
+*/
+    readop = mem->op[AVR_OP_CRC];
+
+    if (readop == NULL) {
+#if DEBUG
+    avrdude_message(MSG_INFO, "avr_crc(): operation not supported on memory type \"%s\"\n",
+                    mem->desc);
+#endif
+    return -1;
+  }
+
+  /*
+   * If this device has a "load extended address" command, issue it.
+   */
+  lext = mem->op[AVR_OP_LOAD_EXT_ADDR];
+//  if (lext != NULL) {
+    memset(cmd, 0, sizeof(cmd));
+
+    avr_set_bits(lext, cmd);
+    avr_set_addr(lext, cmd, addr);
+    r = pgm->cmd(pgm, cmd, res);
+    if (r < 0)
+      return r;
+//  }
+
+  memset(cmd, 0, sizeof(cmd));
+
+  avr_set_bits(readop, cmd);
+  avr_set_addr(readop, cmd, addr);
+//  r = pgm->cmd(pgm, cmd, res);
+//  if (r < 0)
+//    return r;
+  data = 0;
+//  avr_get_output(readop, res, &data);
+
+  memset(res, 0, sizeof(res));
+  r = pgm->crc(pgm, p, mem, page_size, addr, n_bytes, &res);
+  data = (((unsigned int)res[0]<<8) | res[1]);
+  mem->crc_calc = data;
+  
+//  readop = mem->op[AVR_OP_CRC];
+
+  pgm->pgm_led(pgm, OFF);
+
+  *value = data;
+
+  return 0;
+}
+
+
 /*
  * Read the entirety of the specified memory type into the
  * corresponding buffer of the avrpart pointed to by 'p'.

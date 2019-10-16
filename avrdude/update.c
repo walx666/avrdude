@@ -78,13 +78,18 @@ UPDATE * parse_op(char * s)
   else if (*p == 'v') {
     upd->op = DEVICE_VERIFY;
   }
+  else if (*p == 'c') {
+    upd->op = DEVICE_CRC;
+  }
   else {
     avrdude_message(MSG_INFO, "%s: invalid I/O mode '%c' in update specification\n",
             progname, *p);
     avrdude_message(MSG_INFO, "  allowed values are:\n"
+                    "    c = crc device\n"
                     "    r = read device\n"
                     "    w = write device\n"
-                    "    v = verify device\n");
+                    "    v = verify device\n" );
+
     free(upd->memtype);
     free(upd);
     return NULL;
@@ -312,6 +317,76 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
     }
 
   }
+  else if (upd->op == DEVICE_CRC) {
+    /*
+     * verify that the in memory file (p->mem[AVR_M_FLASH|AVR_M_EEPROM])
+     * is the same as what is on the chip
+     */
+    pgm->vfy_led(pgm, ON);
+
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: verifying %s memory against %s:\n",
+            progname, mem->desc, upd->filename);
+
+      avrdude_message(MSG_INFO, "%s: load data %s data from input file %s:\n",
+            progname, mem->desc, upd->filename);
+    }
+
+    rc = fileio(FIO_READ, upd->filename, upd->format, p, upd->memtype, -1);
+    if (rc < 0) {
+      avrdude_message(MSG_INFO, "%s: read from file '%s' failed\n",
+              progname, upd->filename);
+      return -1;
+    }
+    v = avr_dup_part(p);
+    size = rc;
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: input file %s contains %d bytes\n",
+            progname, upd->filename, size);
+      avrdude_message(MSG_INFO, "%s: reading on-chip %s data:\n",
+            progname, mem->desc);
+    }
+
+    report_progress (0,1,"Reading");
+    rc = avr_crc(pgm, p, mem, mem->blocksize, 0, mem->size, &mem->crc_calc);  
+//    int avr_crc  (PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size, unsigned long addr, unsigned long n_bytes, unsigned int * value);
+//    rc = avr_crc(pgm, p, mem, 0, &mem->crc_calc);
+    
+    avrdude_message(MSG_INFO, "\ncrc16 of memory type \"%s\"= \"%04X\"\n",
+            mem->desc, mem->crc_calc);   
+    
+//    mem->crc,
+//    int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned long addr, unsigned int * value)
+      
+//    rc = avr_read(pgm, p, upd->memtype, v);
+    if (rc < 0) {
+      avrdude_message(MSG_INFO, "%s: failed to read all of %s memory, rc=%d\n",
+              progname, mem->desc, rc);
+      pgm->err_led(pgm, ON);
+      return -1;
+    }
+    report_progress (1,1,NULL);
+
+
+
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: verifying ...\n", progname);
+    }
+    rc = avr_verify(p, v, upd->memtype, size);
+    if (rc < 0) {
+      avrdude_message(MSG_INFO, "%s: verification error; content mismatch\n",
+              progname);
+      pgm->err_led(pgm, ON);
+      return -1;
+    }
+
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: %d bytes of %s verified\n",
+              progname, rc, mem->desc);
+    }
+
+    pgm->vfy_led(pgm, OFF);
+  } 
   else if (upd->op == DEVICE_VERIFY) {
     /*
      * verify that the in memory file (p->mem[AVR_M_FLASH|AVR_M_EEPROM])

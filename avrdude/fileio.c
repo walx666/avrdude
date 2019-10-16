@@ -778,6 +778,10 @@ static int elf_mem_limits(AVRMEM *mem, struct avrpart * p,
       *lowbound = 0x810000;
       *highbound = 0x81ffff;      /* max 64 KiB */
       *fileoff = 0;
+    } else if (strcmp(mem->desc, "xeeprom") == 0) {
+      *lowbound = 0x000000;
+      *highbound = 0x07ffff;      /* max 2 MiB */
+      *fileoff = 0;
     } else if (strcmp(mem->desc, "lfuse") == 0) {
       *lowbound = 0x820000;
       *highbound = 0x82ffff;

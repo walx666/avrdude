@@ -149,6 +149,7 @@ enum {
   AVR_OP_WRITEPAGE,
   AVR_OP_CHIP_ERASE,
   AVR_OP_PGM_ENABLE,
+  AVR_OP_CRC,
   AVR_OP_MAX
 };
 
@@ -159,6 +160,11 @@ enum {
   AVR_CMDBIT_ADDRESS, /* this bit represents an input address bit */
   AVR_CMDBIT_INPUT,   /* this bit is an input bit */
   AVR_CMDBIT_OUTPUT   /* this bit is an output bit */
+};
+
+enum {
+  CRC_CRC16,
+  CRC_CRC16_CCITT,
 };
 
 enum { /* these are assigned to reset_disposition of AVRPART */
@@ -299,6 +305,9 @@ typedef struct avrmem {
   int blocksize;              /* stk500 v2 xml file parameter */
   int readsize;               /* stk500 v2 xml file parameter */
   int pollindex;              /* stk500 v2 xml file parameter */
+  
+  int crc_calc;
+  int crc_type;
 
   unsigned char * buf;        /* pointer to memory buffer */
   unsigned char * tags;       /* allocation tags */
@@ -662,6 +671,9 @@ typedef struct programmer_t {
   int  (*paged_load)     (struct programmer_t * pgm, AVRPART * p, AVRMEM * m,
                           unsigned int page_size, unsigned int baseaddr,
                           unsigned int n_bytes);
+  int  (*crc)             (struct programmer_t * pgm, AVRPART * p, AVRMEM * m,
+                          unsigned int page_size, unsigned long baseaddr,
+                          unsigned long n_bytes, unsigned int * value);
   int  (*page_erase)     (struct programmer_t * pgm, AVRPART * p, AVRMEM * m,
                           unsigned int baseaddr);
   void (*write_setup)    (struct programmer_t * pgm, AVRPART * p, AVRMEM * m);
@@ -755,6 +767,8 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
 
 int avr_signature(PROGRAMMER * pgm, AVRPART * p);
 
+int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size, unsigned long addr, unsigned long n_bytes, unsigned int * value);
+
 int avr_verify(AVRPART * p, AVRPART * v, char * memtype, int size);
 
 int avr_get_cycle_count(PROGRAMMER * pgm, AVRPART * p, int * cycles);
@@ -845,7 +859,8 @@ int safemode_memfuses (int save, unsigned char * lfuse, unsigned char * hfuse, u
 enum {
   DEVICE_READ,
   DEVICE_WRITE,
-  DEVICE_VERIFY
+  DEVICE_VERIFY,
+  DEVICE_CRC
 };
 
 enum updateflags {

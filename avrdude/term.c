@@ -43,6 +43,9 @@ struct command {
 };
 
 
+static int cmd_crc  (PROGRAMMER * pgm, struct avrpart * p,
+		      int argc, char *argv[]);
+
 static int cmd_dump  (PROGRAMMER * pgm, struct avrpart * p,
 		      int argc, char *argv[]);
 
@@ -92,6 +95,7 @@ static int cmd_verbose (PROGRAMMER * pgm, struct avrpart * p,
 		      int argc, char *argv[]);
 
 struct command cmd[] = {
+  { "crc", cmd_crc, "crc16 of memory : %s <memtype> <addr> <N-Bytes>" },
   { "dump",  cmd_dump,  "dump memory  : %s <memtype> <addr> <N-Bytes>" },
   { "read",  cmd_dump,  "alias for dump" },
   { "write", cmd_write, "write memory : %s <memtype> <addr> <b1> <b2> ... <bN>" },
@@ -223,6 +227,110 @@ static int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
     addr += n;
     p += n;
   }
+
+  return 0;
+}
+
+
+static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
+		    int argc, char * argv[])
+{
+  static char prevmem[128] = {0};
+  char * e;
+  unsigned char * buf;
+  int maxsize;
+  unsigned int crcval;
+  static long addr=0;
+  static long len=64;
+  AVRMEM * mem;
+  char * memtype = NULL;
+  int rc;
+
+  if (!((argc == 2) || (argc == 4))) {
+    avrdude_message(MSG_INFO, "Usage: crc16 <memtype> [<addr> <len>]\n");
+    return -1;
+  }
+
+  memtype = argv[1];
+
+  if (strncmp(prevmem, memtype, strlen(memtype)) != 0) {
+    addr = 0;
+    len  = 64;
+    strncpy(prevmem, memtype, sizeof(prevmem)-1);
+    prevmem[sizeof(prevmem)-1] = 0;
+  }
+
+  mem = avr_locate_mem(p, memtype);
+  if (mem == NULL) {
+    avrdude_message(MSG_INFO, "\"%s\" memory type not defined for part \"%s\"\n",
+            memtype, p->desc);
+    return -1;
+  }
+
+  if (argc == 4) {
+    addr = strtoul(argv[2], &e, 0);
+    if (*e || (e == argv[2])) {
+      avrdude_message(MSG_INFO, "%s (crc16): can't parse address \"%s\"\n",
+              progname, argv[2]);
+      return -1;
+    }
+
+    len = strtol(argv[3], &e, 0);
+    if (*e || (e == argv[3])) {
+      avrdude_message(MSG_INFO, "%s (crc16): can't parse length \"%s\"\n",
+              progname, argv[3]);
+      return -1;
+    }
+  }
+
+  maxsize = mem->size;
+
+  if (addr >= maxsize) {
+    if (argc == 2) {
+      /* wrap around */
+      addr = 0;
+    }
+    else {
+      avrdude_message(MSG_INFO, "%s (crc16): address 0x%05lx is out of range for %s memory\n",
+                      progname, addr, mem->desc);
+      return -1;
+    }
+  }
+
+  /* trim len if nessary to not read past the end of memory */
+  buf = malloc(len);
+  if (buf == NULL) {
+    avrdude_message(MSG_INFO, "%s (crc16): out of memory\n", progname);
+    return -1;
+  }
+
+  rc = pgm->crc(pgm, p, mem, mem->page_size, addr, len, &crcval);
+/*  int  (*crc)             (struct programmer_t * pgm, AVRPART * p, AVRMEM * m,
+                          unsigned int page_size, unsigned long baseaddr,
+                          unsigned long n_bytes, unsigned int * value);
+*/
+  if (rc != 0) {
+    avrdude_message(MSG_INFO, "error reading %s address 0x%05lx of part %s\n",
+           mem->desc, addr, p->desc);
+  if (rc == -1)
+    avrdude_message(MSG_INFO, "read operation not supported on memory type \"%s\"\n",
+           mem->desc);
+   return -1;  
+  }
+
+//  avrdude_message(MSG_INFO, "crc16 of memory type \"%s\"= \"%04X\"\n",
+//            mem->desc, crcval);
+
+  avrdude_message(MSG_INFO, "crc16 of memory type \"%s\"= \"%04X\"\n",
+            memtype, mem->crc_calc);
+
+//crcval
+
+  fprintf(stdout, "\n");
+
+  free(buf);
+
+  addr = addr + len;
 
   return 0;
 }
