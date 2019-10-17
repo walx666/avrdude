@@ -1,5 +1,8 @@
 {
     "terminal.integrated.shell.windows": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+    //"terminal.integrated.cwd": "${workspaceFolder}",
+    //"terminal.integrated.cwd": "/c/users/${env:USERNAME}/source",
+    "terminal.integrated.cwd": "/c/users",
     "terminal.integrated.shellArgs.windows": [
         "--login",
     ],

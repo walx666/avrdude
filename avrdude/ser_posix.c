@@ -47,30 +47,37 @@
 
 long serial_recv_timeout = 5000; /* ms */
 
-struct baud_mapping {
+struct baud_mapping
+{
   long baud;
   speed_t speed;
 };
 
 /* There are a lot more baud rates we could handle, but what's the point? */
 
-static struct baud_mapping baud_lookup_table [] = {
-  { 1200,   B1200 },
-  { 2400,   B2400 },
-  { 4800,   B4800 },
-  { 9600,   B9600 },
-  { 19200,  B19200 },
-  { 38400,  B38400 },
+static struct baud_mapping baud_lookup_table[] = {
+    {1200, B1200},
+    {2400, B2400},
+    {4800, B4800},
+    {9600, B9600},
+    {19200, B19200},
+    {38400, B38400},
 #ifdef B57600
-  { 57600,  B57600 },
+    {57600, B57600},
 #endif
 #ifdef B115200
-  { 115200, B115200 },
+    {115200, B115200},
 #endif
 #ifdef B230400
-  { 230400, B230400 },
+    {230400, B230400},
 #endif
-  { 0,      0 }                 /* Terminator. */
+    /*#ifdef B460800
+    {460800, B460800},
+#endif
+#ifdef B921600
+    {921600, B921600},
+#endif */
+    {0, 0} /* Terminator. */
 };
 
 static struct termios original_termios;
@@ -80,7 +87,8 @@ static speed_t serial_baud_lookup(long baud)
 {
   struct baud_mapping *map = baud_lookup_table;
 
-  while (map->baud) {
+  while (map->baud)
+  {
     if (map->baud == baud)
       return map->speed;
     map++;
@@ -91,7 +99,7 @@ static speed_t serial_baud_lookup(long baud)
    * a warning (if we are verbose) and return the raw rate
    */
   avrdude_message(MSG_NOTICE, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld",
-              progname, baud);
+                  progname, baud);
 
   return baud;
 }
@@ -100,25 +108,27 @@ static int ser_setspeed(union filedescriptor *fd, long baud)
 {
   int rc;
   struct termios termios;
-  speed_t speed = serial_baud_lookup (baud);
-  
+  speed_t speed = serial_baud_lookup(baud);
+
   if (!isatty(fd->ifd))
     return -ENOTTY;
-  
+
   /*
    * initialize terminal modes
    */
   rc = tcgetattr(fd->ifd, &termios);
-  if (rc < 0) {
+  if (rc < 0)
+  {
     avrdude_message(MSG_INFO, "%s: ser_setspeed(): tcgetattr() failed",
-            progname);
+                    progname);
     return -errno;
   }
 
   /*
    * copy termios for ser_close if we haven't already
    */
-  if (! saved_original_termios++) {
+  if (!saved_original_termios++)
+  {
     original_termios = termios;
   }
 
@@ -126,16 +136,17 @@ static int ser_setspeed(union filedescriptor *fd, long baud)
   termios.c_oflag = 0;
   termios.c_lflag = 0;
   termios.c_cflag = (CS8 | CREAD | CLOCAL);
-  termios.c_cc[VMIN]  = 1;
+  termios.c_cc[VMIN] = 1;
   termios.c_cc[VTIME] = 0;
 
   cfsetospeed(&termios, speed);
   cfsetispeed(&termios, speed);
 
   rc = tcsetattr(fd->ifd, TCSANOW, &termios);
-  if (rc < 0) {
+  if (rc < 0)
+  {
     avrdude_message(MSG_INFO, "%s: ser_setspeed(): tcsetattr() failed\n",
-            progname);
+                    progname);
     return -errno;
   }
 
@@ -165,9 +176,10 @@ net_open(const char *port, union filedescriptor *fdp)
   struct addrinfo hints;
   struct addrinfo *result, *rp;
 
-  if ((hstr = hp = strdup(port)) == NULL) {
+  if ((hstr = hp = strdup(port)) == NULL)
+  {
     avrdude_message(MSG_INFO, "%s: net_open(): Out of memory!\n",
-	    progname);
+                    progname);
     return -1;
   }
 
@@ -176,18 +188,20 @@ net_open(const char *port, union filedescriptor *fdp)
    * look for the last colon here, which separates the port number or
    * service name from the host or IP address.
    */
-  if (((pstr = strrchr(hstr, ':')) == NULL) || (pstr == hstr)) {
+  if (((pstr = strrchr(hstr, ':')) == NULL) || (pstr == hstr))
+  {
     avrdude_message(MSG_INFO, "%s: net_open(): Mangled host:port string \"%s\"\n",
-	    progname, hstr);
+                    progname, hstr);
     goto error;
   }
 
   /*
    * Remove brackets from the host part, if present.
    */
-  if (*hstr == '[' && *(pstr-1) == ']') {
+  if (*hstr == '[' && *(pstr - 1) == ']')
+  {
     hstr++;
-    *(pstr-1) = '\0';
+    *(pstr - 1) = '\0';
   }
 
   /*
@@ -200,30 +214,36 @@ net_open(const char *port, union filedescriptor *fdp)
   hints.ai_socktype = SOCK_STREAM;
   s = getaddrinfo(hstr, pstr, &hints, &result);
 
-  if (s != 0) {
+  if (s != 0)
+  {
     avrdude_message(MSG_INFO,
-	    "%s: net_open(): Cannot resolve "
-	    "host=\"%s\", port=\"%s\": %s\n",
-	    progname, hstr, pstr, gai_strerror(s));
+                    "%s: net_open(): Cannot resolve "
+                    "host=\"%s\", port=\"%s\": %s\n",
+                    progname, hstr, pstr, gai_strerror(s));
     goto error;
   }
-  for (rp = result; rp != NULL; rp = rp->ai_next) {
+  for (rp = result; rp != NULL; rp = rp->ai_next)
+  {
     fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-    if (fd == -1) {
+    if (fd == -1)
+    {
       /* This one failed, loop over */
       continue;
     }
-    if (connect(fd, rp->ai_addr, rp->ai_addrlen) != -1) {
+    if (connect(fd, rp->ai_addr, rp->ai_addrlen) != -1)
+    {
       /* Success, we are connected */
       break;
     }
     close(fd);
   }
-  if (rp == NULL) {
+  if (rp == NULL)
+  {
     avrdude_message(MSG_INFO, "%s: net_open(): Cannot connect: %s\n",
-	    progname, strerror(errno));
+                    progname, strerror(errno));
   }
-  else {
+  else
+  {
     fdp->ifd = fd;
     ret = 0;
   }
@@ -234,35 +254,39 @@ error:
   return ret;
 #else
   avrdude_message(MSG_INFO,
-	  "%s: Networking is not supported on your platform.\n"
-	  "If you need it, please open a bug report.\n", progname);
+                  "%s: Networking is not supported on your platform.\n"
+                  "If you need it, please open a bug report.\n",
+                  progname);
   return -1;
 #endif /* HAVE_GETADDRINFO */
 }
 
-
 static int ser_set_dtr_rts(union filedescriptor *fdp, int is_on)
 {
-  unsigned int	ctl;
-  int           r;
+  unsigned int ctl;
+  int r;
 
   r = ioctl(fdp->ifd, TIOCMGET, &ctl);
-  if (r < 0) {
+  if (r < 0)
+  {
     perror("ioctl(\"TIOCMGET\")");
     return -1;
   }
 
-  if (is_on) {
+  if (is_on)
+  {
     /* Set DTR and RTS */
     ctl |= (TIOCM_DTR | TIOCM_RTS);
   }
-  else {
+  else
+  {
     /* Clear DTR and RTS */
     ctl &= ~(TIOCM_DTR | TIOCM_RTS);
   }
 
   r = ioctl(fdp->ifd, TIOCMSET, &ctl);
-  if (r < 0) {
+  if (r < 0)
+  {
     perror("ioctl(\"TIOCMSET\")");
     return -1;
   }
@@ -270,7 +294,7 @@ static int ser_set_dtr_rts(union filedescriptor *fdp, int is_on)
   return 0;
 }
 
-static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
+static int ser_open(char *port, union pinfo pinfo, union filedescriptor *fdp)
 {
   int rc;
   int fd;
@@ -279,7 +303,8 @@ static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
    * If the port is of the form "net:<host>:<port>", then
    * handle it as a TCP connection to a terminal server.
    */
-  if (strncmp(port, "net:", strlen("net:")) == 0) {
+  if (strncmp(port, "net:", strlen("net:")) == 0)
+  {
     return net_open(port + strlen("net:"), fdp);
   }
 
@@ -287,9 +312,10 @@ static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
    * open the serial port
    */
   fd = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
-  if (fd < 0) {
+  if (fd < 0)
+  {
     avrdude_message(MSG_INFO, "%s: ser_open(): can't open device \"%s\": %s\n",
-            progname, port, strerror(errno));
+                    progname, port, strerror(errno));
     return -1;
   }
 
@@ -299,7 +325,8 @@ static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
    * set serial line attributes
    */
   rc = ser_setspeed(fdp, pinfo.baud);
-  if (rc) {
+  if (rc)
+  {
     avrdude_message(MSG_INFO, "%s: ser_open(): can't set attributes for device \"%s\": %s\n",
                     progname, port, strerror(-rc));
     close(fd);
@@ -308,15 +335,16 @@ static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
   return 0;
 }
 
-
 static void ser_close(union filedescriptor *fd)
 {
   /*
    * restore original termios settings from ser_open
    */
-  if (saved_original_termios) {
+  if (saved_original_termios)
+  {
     int rc = tcsetattr(fd->ifd, TCSANOW | TCSADRAIN, &original_termios);
-    if (rc) {
+    if (rc)
+    {
       avrdude_message(MSG_INFO, "%s: ser_close(): can't reset attributes for device: %s\n",
                       progname, strerror(errno));
     }
@@ -326,11 +354,10 @@ static void ser_close(union filedescriptor *fd)
   close(fd->ifd);
 }
 
-
-static int ser_send(union filedescriptor *fd, const unsigned char * buf, size_t buflen)
+static int ser_send(union filedescriptor *fd, const unsigned char *buf, size_t buflen)
 {
   int rc;
-  const unsigned char * p = buf;
+  const unsigned char *p = buf;
   size_t len = buflen;
 
   if (!len)
@@ -338,30 +365,35 @@ static int ser_send(union filedescriptor *fd, const unsigned char * buf, size_t 
 
   if (verbose > 3)
   {
-      avrdude_message(MSG_TRACE, "%s: Send: ", progname);
+    avrdude_message(MSG_TRACE, "%s: Send: ", progname);
 
-      while (buflen) {
-        unsigned char c = *buf;
-        if (isprint(c)) {
-          avrdude_message(MSG_TRACE, "%c ", c);
-        }
-        else {
-          avrdude_message(MSG_TRACE, ". ");
-        }
-        avrdude_message(MSG_TRACE, "[%02x] ", c);
-
-        buf++;
-        buflen--;
+    while (buflen)
+    {
+      unsigned char c = *buf;
+      if (isprint(c))
+      {
+        avrdude_message(MSG_TRACE, "%c ", c);
       }
+      else
+      {
+        avrdude_message(MSG_TRACE, ". ");
+      }
+      avrdude_message(MSG_TRACE, "[%02x] ", c);
 
-      avrdude_message(MSG_TRACE, "\n");
+      buf++;
+      buflen--;
+    }
+
+    avrdude_message(MSG_TRACE, "\n");
   }
 
-  while (len) {
+  while (len)
+  {
     rc = write(fd->ifd, p, (len > 1024) ? 1024 : len);
-    if (rc < 0) {
+    if (rc < 0)
+    {
       avrdude_message(MSG_INFO, "%s: ser_send(): write error: %s\n",
-              progname, strerror(errno));
+                      progname, strerror(errno));
       return -1;
     }
     p += rc;
@@ -371,48 +403,53 @@ static int ser_send(union filedescriptor *fd, const unsigned char * buf, size_t 
   return 0;
 }
 
-
-static int ser_recv(union filedescriptor *fd, unsigned char * buf, size_t buflen)
+static int ser_recv(union filedescriptor *fd, unsigned char *buf, size_t buflen)
 {
   struct timeval timeout, to2;
   fd_set rfds;
   int nfds;
   int rc;
-  unsigned char * p = buf;
+  unsigned char *p = buf;
   size_t len = 0;
 
-  timeout.tv_sec  = serial_recv_timeout / 1000L;
+  timeout.tv_sec = serial_recv_timeout / 1000L;
   timeout.tv_usec = (serial_recv_timeout % 1000L) * 1000;
   to2 = timeout;
 
-  while (len < buflen) {
+  while (len < buflen)
+  {
   reselect:
     FD_ZERO(&rfds);
     FD_SET(fd->ifd, &rfds);
 
     nfds = select(fd->ifd + 1, &rfds, NULL, NULL, &to2);
-    if (nfds == 0) {
+    if (nfds == 0)
+    {
       avrdude_message(MSG_NOTICE2, "%s: ser_recv(): programmer is not responding\n",
-                        progname);
+                      progname);
       return -1;
     }
-    else if (nfds == -1) {
-      if (errno == EINTR || errno == EAGAIN) {
-	avrdude_message(MSG_INFO, "%s: ser_recv(): programmer is not responding,reselecting\n",
+    else if (nfds == -1)
+    {
+      if (errno == EINTR || errno == EAGAIN)
+      {
+        avrdude_message(MSG_INFO, "%s: ser_recv(): programmer is not responding,reselecting\n",
                         progname);
         goto reselect;
       }
-      else {
+      else
+      {
         avrdude_message(MSG_INFO, "%s: ser_recv(): select(): %s\n",
-                progname, strerror(errno));
+                        progname, strerror(errno));
         return -1;
       }
     }
 
     rc = read(fd->ifd, p, (buflen - len > 1024) ? 1024 : buflen - len);
-    if (rc < 0) {
+    if (rc < 0)
+    {
       avrdude_message(MSG_INFO, "%s: ser_recv(): read error: %s\n",
-              progname, strerror(errno));
+                      progname, strerror(errno));
       return -1;
     }
     p += rc;
@@ -423,27 +460,29 @@ static int ser_recv(union filedescriptor *fd, unsigned char * buf, size_t buflen
 
   if (verbose > 3)
   {
-      avrdude_message(MSG_TRACE, "%s: Recv: ", progname);
+    avrdude_message(MSG_TRACE, "%s: Recv: ", progname);
 
-      while (len) {
-        unsigned char c = *p;
-        if (isprint(c)) {
-          avrdude_message(MSG_TRACE, "%c ", c);
-        }
-        else {
-          avrdude_message(MSG_TRACE, ". ");
-        }
-        avrdude_message(MSG_TRACE, "[%02x] ", c);
-
-        p++;
-        len--;
+    while (len)
+    {
+      unsigned char c = *p;
+      if (isprint(c))
+      {
+        avrdude_message(MSG_TRACE, "%c ", c);
       }
-      avrdude_message(MSG_TRACE, "\n");
+      else
+      {
+        avrdude_message(MSG_TRACE, ". ");
+      }
+      avrdude_message(MSG_TRACE, "[%02x] ", c);
+
+      p++;
+      len--;
+    }
+    avrdude_message(MSG_TRACE, "\n");
   }
 
   return 0;
 }
-
 
 static int ser_drain(union filedescriptor *fd, int display)
 {
@@ -456,41 +495,50 @@ static int ser_drain(union filedescriptor *fd, int display)
   timeout.tv_sec = 0;
   timeout.tv_usec = 250000;
 
-  if (display) {
+  if (display)
+  {
     avrdude_message(MSG_INFO, "drain>");
   }
 
-  while (1) {
+  while (1)
+  {
     FD_ZERO(&rfds);
     FD_SET(fd->ifd, &rfds);
 
   reselect:
     nfds = select(fd->ifd + 1, &rfds, NULL, NULL, &timeout);
-    if (nfds == 0) {
-      if (display) {
+    if (nfds == 0)
+    {
+      if (display)
+      {
         avrdude_message(MSG_INFO, "<drain\n");
       }
-      
+
       break;
     }
-    else if (nfds == -1) {
-      if (errno == EINTR) {
+    else if (nfds == -1)
+    {
+      if (errno == EINTR)
+      {
         goto reselect;
       }
-      else {
+      else
+      {
         avrdude_message(MSG_INFO, "%s: ser_drain(): select(): %s\n",
-                progname, strerror(errno));
+                        progname, strerror(errno));
         return -1;
       }
     }
 
     rc = read(fd->ifd, &buf, 1);
-    if (rc < 0) {
+    if (rc < 0)
+    {
       avrdude_message(MSG_INFO, "%s: ser_drain(): read error: %s\n",
-              progname, strerror(errno));
+                      progname, strerror(errno));
       return -1;
     }
-    if (display) {
+    if (display)
+    {
       avrdude_message(MSG_INFO, "%02x ", buf);
     }
   }
@@ -499,17 +547,17 @@ static int ser_drain(union filedescriptor *fd, int display)
 }
 
 struct serial_device serial_serdev =
-{
-  .open = ser_open,
-  .setspeed = ser_setspeed,
-  .close = ser_close,
-  .send = ser_send,
-  .recv = ser_recv,
-  .drain = ser_drain,
-  .set_dtr_rts = ser_set_dtr_rts,
-  .flags = SERDEV_FL_CANSETSPEED,
+    {
+        .open = ser_open,
+        .setspeed = ser_setspeed,
+        .close = ser_close,
+        .send = ser_send,
+        .recv = ser_recv,
+        .drain = ser_drain,
+        .set_dtr_rts = ser_set_dtr_rts,
+        .flags = SERDEV_FL_CANSETSPEED,
 };
 
 struct serial_device *serdev = &serial_serdev;
 
-#endif  /* WIN32NATIVE */
+#endif /* WIN32NATIVE */

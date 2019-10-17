@@ -49,107 +49,115 @@ int avr_tpi_poll_nvmbsy(PROGRAMMER *pgm)
 }
 
 /* TPI chip erase sequence */
-int avr_tpi_chip_erase(PROGRAMMER * pgm, AVRPART * p)
+int avr_tpi_chip_erase(PROGRAMMER *pgm, AVRPART *p)
 {
-	int err;
+  int err;
   AVRMEM *mem;
 
-  if (p->flags & AVRPART_HAS_TPI) {
+  if (p->flags & AVRPART_HAS_TPI)
+  {
     pgm->pgm_led(pgm, ON);
 
     /* Set Pointer Register */
     mem = avr_locate_mem(p, "flash");
-    if (mem == NULL) {
+    if (mem == NULL)
+    {
       avrdude_message(MSG_INFO, "No flash memory to erase for part %s\n",
-          p->desc);
+                      p->desc);
       return -1;
     }
 
-		unsigned char cmd[] = {
-			/* write pointer register high byte */
-			(TPI_CMD_SSTPR | 0),
-			((mem->offset & 0xFF) | 1),
-			/* and low byte */
-			(TPI_CMD_SSTPR | 1),
-			((mem->offset >> 8) & 0xFF),
-	    /* write CHIP_ERASE command to NVMCMD register */
-			(TPI_CMD_SOUT | TPI_SIO_ADDR(TPI_IOREG_NVMCMD)),
-			TPI_NVMCMD_CHIP_ERASE,
-			/* write dummy value to start erase */
-			TPI_CMD_SST,
-			0xFF
-		};
+    unsigned char cmd[] = {
+        /* write pointer register high byte */
+        (TPI_CMD_SSTPR | 0),
+        ((mem->offset & 0xFF) | 1),
+        /* and low byte */
+        (TPI_CMD_SSTPR | 1),
+        ((mem->offset >> 8) & 0xFF),
+        /* write CHIP_ERASE command to NVMCMD register */
+        (TPI_CMD_SOUT | TPI_SIO_ADDR(TPI_IOREG_NVMCMD)),
+        TPI_NVMCMD_CHIP_ERASE,
+        /* write dummy value to start erase */
+        TPI_CMD_SST,
+        0xFF};
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
-		err = pgm->cmd_tpi(pgm, cmd, sizeof(cmd), NULL, 0);
-		if(err)
-			return err;
+    err = pgm->cmd_tpi(pgm, cmd, sizeof(cmd), NULL, 0);
+    if (err)
+      return err;
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
     pgm->pgm_led(pgm, OFF);
 
     return 0;
-  } else {
-		avrdude_message(MSG_INFO, "%s called for a part that has no TPI\n", __func__);
-		return -1;
-	}
+  }
+  else
+  {
+    avrdude_message(MSG_INFO, "%s called for a part that has no TPI\n", __func__);
+    return -1;
+  }
 }
 
 /* TPI program enable sequence */
-int avr_tpi_program_enable(PROGRAMMER * pgm, AVRPART * p, unsigned char guard_time)
+int avr_tpi_program_enable(PROGRAMMER *pgm, AVRPART *p, unsigned char guard_time)
 {
-	int err, retry;
-	unsigned char cmd[2];
-	unsigned char response;
+  int err, retry;
+  unsigned char cmd[2];
+  unsigned char response;
 
-	if(p->flags & AVRPART_HAS_TPI) {
-		/* set guard time */
-		cmd[0] = (TPI_CMD_SSTCS | TPI_REG_TPIPCR);
-		cmd[1] = guard_time;
+  if (p->flags & AVRPART_HAS_TPI)
+  {
+    /* set guard time */
+    cmd[0] = (TPI_CMD_SSTCS | TPI_REG_TPIPCR);
+    cmd[1] = guard_time;
 
-		err = pgm->cmd_tpi(pgm, cmd, sizeof(cmd), NULL, 0);
-    if(err)
-			return err;
+    err = pgm->cmd_tpi(pgm, cmd, sizeof(cmd), NULL, 0);
+    if (err)
+      return err;
 
-		/* read TPI ident reg */
+    /* read TPI ident reg */
     cmd[0] = (TPI_CMD_SLDCS | TPI_REG_TPIIR);
-		err = pgm->cmd_tpi(pgm, cmd, 1, &response, sizeof(response));
-    if (err || response != TPI_IDENT_CODE) {
+    err = pgm->cmd_tpi(pgm, cmd, 1, &response, sizeof(response));
+    if (err || response != TPI_IDENT_CODE)
+    {
       avrdude_message(MSG_INFO, "TPIIR not correct\n");
       return -1;
     }
 
-		/* send SKEY command + SKEY */
-		err = pgm->cmd_tpi(pgm, tpi_skey_cmd, sizeof(tpi_skey_cmd), NULL, 0);
-		if(err)
-			return err;
+    /* send SKEY command + SKEY */
+    err = pgm->cmd_tpi(pgm, tpi_skey_cmd, sizeof(tpi_skey_cmd), NULL, 0);
+    if (err)
+      return err;
 
-		/* check if device is ready */
-		for(retry = 0; retry < 10; retry++)
-		{
-			cmd[0] =  (TPI_CMD_SLDCS | TPI_REG_TPISR);
-			err = pgm->cmd_tpi(pgm, cmd, 1, &response, sizeof(response));
-			if(err || !(response & TPI_REG_TPISR_NVMEN))
-				continue;
+    /* check if device is ready */
+    for (retry = 0; retry < 10; retry++)
+    {
+      cmd[0] = (TPI_CMD_SLDCS | TPI_REG_TPISR);
+      err = pgm->cmd_tpi(pgm, cmd, 1, &response, sizeof(response));
+      if (err || !(response & TPI_REG_TPISR_NVMEN))
+        continue;
 
-			return 0;
-		}
+      return 0;
+    }
 
-		avrdude_message(MSG_INFO, "Error enabling TPI external programming mode:");
-		avrdude_message(MSG_INFO, "Target does not reply\n");
-		return -1;
-
-	} else {
-		avrdude_message(MSG_INFO, "%s called for a part that has no TPI\n", __func__);
-		return -1;
-	}
+    avrdude_message(MSG_INFO, "Error enabling TPI external programming mode:");
+    avrdude_message(MSG_INFO, "Target does not reply\n");
+    return -1;
+  }
+  else
+  {
+    avrdude_message(MSG_INFO, "%s called for a part that has no TPI\n", __func__);
+    return -1;
+  }
 }
 
 /* TPI: setup NVMCMD register and pointer register (PR) for read/write/erase */
-static int avr_tpi_setup_rw(PROGRAMMER * pgm, AVRMEM * mem,
-			    unsigned long addr, unsigned char nvmcmd)
+static int avr_tpi_setup_rw(PROGRAMMER *pgm, AVRMEM *mem,
+                            unsigned long addr, unsigned char nvmcmd)
 {
   unsigned char cmd[4];
   int rc;
@@ -177,18 +185,19 @@ static int avr_tpi_setup_rw(PROGRAMMER * pgm, AVRMEM * mem,
   return 0;
 }
 
-int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, 
-                          unsigned long addr, unsigned char * value)
+int avr_read_byte_default(PROGRAMMER *pgm, AVRPART *p, AVRMEM *mem,
+                          unsigned long addr, unsigned char *value)
 {
   unsigned char cmd[4];
   unsigned char res[4];
   unsigned char data;
   int r;
-  OPCODE * readop, * lext;
+  OPCODE *readop, *lext;
 
-  if (pgm->cmd == NULL) {
+  if (pgm->cmd == NULL)
+  {
     avrdude_message(MSG_INFO, "%s: Error: %s programmer uses avr_read_byte_default() but does not\n"
-                    "provide a cmd() method.\n",
+                              "provide a cmd() method.\n",
                     progname, pgm->type);
     return -1;
   }
@@ -196,14 +205,17 @@ int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   pgm->pgm_led(pgm, ON);
   pgm->err_led(pgm, OFF);
 
-  if (p->flags & AVRPART_HAS_TPI) {
-    if (pgm->cmd_tpi == NULL) {
+  if (p->flags & AVRPART_HAS_TPI)
+  {
+    if (pgm->cmd_tpi == NULL)
+    {
       avrdude_message(MSG_INFO, "%s: Error: %s programmer does not support TPI\n",
-          progname, pgm->type);
+                      progname, pgm->type);
       return -1;
     }
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
     /* setup for read */
     avr_tpi_setup_rw(pgm, mem, addr, TPI_NVMCMD_NO_OPERATION);
@@ -211,7 +223,7 @@ int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
     /* load byte */
     cmd[0] = TPI_CMD_SLD;
     r = pgm->cmd_tpi(pgm, cmd, 1, value, 1);
-    if (r == -1) 
+    if (r == -1)
       return -1;
 
     return 0;
@@ -220,18 +232,21 @@ int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   /*
    * figure out what opcode to use
    */
-  if (mem->op[AVR_OP_READ_LO]) {
+  if (mem->op[AVR_OP_READ_LO])
+  {
     if (addr & 0x00000001)
       readop = mem->op[AVR_OP_READ_HI];
     else
       readop = mem->op[AVR_OP_READ_LO];
     addr = addr / 2;
   }
-  else {
+  else
+  {
     readop = mem->op[AVR_OP_READ];
   }
 
-  if (readop == NULL) {
+  if (readop == NULL)
+  {
 #if DEBUG
     avrdude_message(MSG_INFO, "avr_read_byte(): operation not supported on memory type \"%s\"\n",
                     mem->desc);
@@ -243,7 +258,8 @@ int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
    * If this device has a "load extended address" command, issue it.
    */
   lext = mem->op[AVR_OP_LOAD_EXT_ADDR];
-  if (lext != NULL) {
+  if (lext != NULL)
+  {
     memset(cmd, 0, sizeof(cmd));
 
     avr_set_bits(lext, cmd);
@@ -270,7 +286,6 @@ int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   return 0;
 }
 
-
 /*
  * Return the number of "interesting" bytes in a memory buffer,
  * "interesting" being defined as up to the last non-0xff data
@@ -278,17 +293,19 @@ int avr_read_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
  * with "flash" memory, since writing 0xff to flash is typically a
  * no-op. Always return an even number since flash is word addressed.
  */
-int avr_mem_hiaddr(AVRMEM * mem)
+int avr_mem_hiaddr(AVRMEM *mem)
 {
   int i, n;
 
   /* return the highest non-0xff address regardless of how much
      memory was read */
-  for (i=mem->size-1; i>0; i--) {
-    if (mem->buf[i] != 0xff) {
-      n = i+1;
+  for (i = mem->size - 1; i > 0; i--)
+  {
+    if (mem->buf[i] != 0xff)
+    {
+      n = i + 1;
       if (n & 0x01)
-        return n+1;
+        return n + 1;
       else
         return n;
     }
@@ -297,16 +314,14 @@ int avr_mem_hiaddr(AVRMEM * mem)
   return 0;
 }
 
-
-
 //int butterfly_crc16(PROGRAMMER * pgm, AVRPART * p, AVRMEM * m, unsigned int page_size, unsigned int addr, unsigned int n_bytes, unsigned int * value)
-int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size, unsigned long addr, unsigned long n_bytes, unsigned int * value)
+int avr_crc(PROGRAMMER *pgm, AVRPART *p, AVRMEM *mem, unsigned int page_size, unsigned long addr, unsigned long n_bytes, unsigned int *value)
 {
   unsigned char cmd[4];
   unsigned char res[4];
   unsigned int data;
   int r;
-  OPCODE * readop, * lext;
+  OPCODE *readop, *lext;
 
   if (page_size == 0)
     page_size = mem->blocksize;
@@ -320,13 +335,13 @@ int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size,
   pgm->pgm_led(pgm, ON);
   pgm->err_led(pgm, OFF);
 
-//    while (avr_tpi_poll_nvmbsy(pgm));
+  //    while (avr_tpi_poll_nvmbsy(pgm));
 
-    /* setup for read */
-//    avr_tpi_setup_rw(pgm, mem, addr, TPI_NVMCMD_NO_OPERATION);
+  /* setup for read */
+  //    avr_tpi_setup_rw(pgm, mem, addr, TPI_NVMCMD_NO_OPERATION);
 
-    /* load byte */
-/*    cmd[0] = TPI_CMD_SLD;
+  /* load byte */
+  /*    cmd[0] = TPI_CMD_SLD;
     r = pgm->cmd_tpi(pgm, cmd, 1, value, 1);
     if (r == -1) 
       return -1;
@@ -337,7 +352,7 @@ int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size,
   /*
    * figure out what opcode to use
    */
-/*  if (mem->op[AVR_OP_READ_LO]) {
+  /*  if (mem->op[AVR_OP_READ_LO]) {
     if (addr & 0x00000001)
       readop = mem->op[AVR_OP_READ_HI];
     else
@@ -349,9 +364,10 @@ int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size,
 //    readop = mem->op[AVR_OP_CRC];
   }
 */
-    readop = mem->op[AVR_OP_CRC];
+  readop = mem->op[AVR_OP_CRC];
 
-    if (readop == NULL) {
+  if (readop == NULL)
+  {
 #if DEBUG
     avrdude_message(MSG_INFO, "avr_crc(): operation not supported on memory type \"%s\"\n",
                     mem->desc);
@@ -363,32 +379,32 @@ int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size,
    * If this device has a "load extended address" command, issue it.
    */
   lext = mem->op[AVR_OP_LOAD_EXT_ADDR];
-//  if (lext != NULL) {
-    memset(cmd, 0, sizeof(cmd));
+  //  if (lext != NULL) {
+  memset(cmd, 0, sizeof(cmd));
 
-    avr_set_bits(lext, cmd);
-    avr_set_addr(lext, cmd, addr);
-    r = pgm->cmd(pgm, cmd, res);
-    if (r < 0)
-      return r;
-//  }
+  avr_set_bits(lext, cmd);
+  avr_set_addr(lext, cmd, addr);
+  r = pgm->cmd(pgm, cmd, res);
+  if (r < 0)
+    return r;
+  //  }
 
   memset(cmd, 0, sizeof(cmd));
 
   avr_set_bits(readop, cmd);
   avr_set_addr(readop, cmd, addr);
-//  r = pgm->cmd(pgm, cmd, res);
-//  if (r < 0)
-//    return r;
+  //  r = pgm->cmd(pgm, cmd, res);
+  //  if (r < 0)
+  //    return r;
   data = 0;
-//  avr_get_output(readop, res, &data);
+  //  avr_get_output(readop, res, &data);
 
   memset(res, 0, sizeof(res));
   r = pgm->crc(pgm, p, mem, page_size, addr, n_bytes, &res);
-  data = (((unsigned int)res[0]<<8) | res[1]);
+  data = (((unsigned int)res[0] << 8) | res[1]);
   mem->crc_calc = data;
-  
-//  readop = mem->op[AVR_OP_CRC];
+
+  //  readop = mem->op[AVR_OP_CRC];
 
   pgm->pgm_led(pgm, OFF);
 
@@ -396,7 +412,6 @@ int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size,
 
   return 0;
 }
-
 
 /*
  * Read the entirety of the specified memory type into the
@@ -406,20 +421,21 @@ int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size,
  *
  * Return the number of bytes read, or < 0 if an error occurs.  
  */
-int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
-             AVRPART * v)
+int avr_read(PROGRAMMER *pgm, AVRPART *p, char *memtype,
+             AVRPART *v)
 {
-  unsigned long    i, lastaddr;
-  unsigned char    cmd[4];
-  AVRMEM * mem, * vmem = NULL;
+  unsigned long i, lastaddr;
+  unsigned char cmd[4];
+  AVRMEM *mem, *vmem = NULL;
   int rc;
 
   mem = avr_locate_mem(p, memtype);
   if (v != NULL)
-      vmem = avr_locate_mem(v, memtype);
-  if (mem == NULL) {
+    vmem = avr_locate_mem(v, memtype);
+  if (mem == NULL)
+  {
     avrdude_message(MSG_INFO, "No \"%s\" memory for part %s\n",
-            memtype, p->desc);
+                    memtype, p->desc);
     return -1;
   }
 
@@ -430,19 +446,23 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
 
   /* supports "paged load" thru post-increment */
   if ((p->flags & AVRPART_HAS_TPI) && mem->page_size != 0 &&
-      pgm->cmd_tpi != NULL) {
+      pgm->cmd_tpi != NULL)
+  {
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
     /* setup for read (NOOP) */
     avr_tpi_setup_rw(pgm, mem, 0, TPI_NVMCMD_NO_OPERATION);
 
     /* load bytes */
-    for (lastaddr = i = 0; i < mem->size; i++) {
+    for (lastaddr = i = 0; i < mem->size; i++)
+    {
       if (vmem == NULL ||
           (vmem->tags[i] & TAG_ALLOCATED) != 0)
       {
-        if (lastaddr != i) {
+        if (lastaddr != i)
+        {
           /* need to setup new address */
           avr_tpi_setup_rw(pgm, mem, i, TPI_NVMCMD_NO_OPERATION);
           lastaddr = i;
@@ -450,7 +470,8 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
         cmd[0] = TPI_CMD_SLD_PI;
         rc = pgm->cmd_tpi(pgm, cmd, 1, mem->buf + i, 1);
         lastaddr++;
-        if (rc == -1) {
+        if (rc == -1)
+        {
           avrdude_message(MSG_INFO, "avr_read(): error reading address 0x%04lx\n", i);
           return -1;
         }
@@ -460,7 +481,8 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
     return avr_mem_hiaddr(mem);
   }
 
-  if (pgm->paged_load != NULL && mem->page_size != 0) {
+  if (pgm->paged_load != NULL && mem->page_size != 0)
+  {
     /*
      * the programmer supports a paged mode read
      */
@@ -471,7 +493,8 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
     /* quickly scan number of pages to be written to first */
     for (pageaddr = 0, npages = 0;
          pageaddr < mem->size;
-         pageaddr += mem->page_size) {
+         pageaddr += mem->page_size)
+    {
       /* check whether this page must be read */
       for (i = pageaddr;
            i < pageaddr + mem->page_size;
@@ -480,7 +503,9 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
             (mem->tags[i] & TAG_ALLOCATED) != 0 /* verify, do only
                                                     read pages that
                                                     are needed in
-                                                    input file */) {
+                                                    input file */
+        )
+        {
           npages++;
           break;
         }
@@ -488,7 +513,8 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
 
     for (pageaddr = 0, failure = 0, nread = 0;
          !failure && pageaddr < mem->size;
-         pageaddr += mem->page_size) {
+         pageaddr += mem->page_size)
+    {
       /* check whether this page must be read */
       for (i = pageaddr, need_read = 0;
            i < pageaddr + mem->page_size;
@@ -497,24 +523,30 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
             (vmem->tags[i] & TAG_ALLOCATED) != 0 /* verify, do only
                                                     read pages that
                                                     are needed in
-                                                    input file */) {
+                                                    input file */
+        )
+        {
           need_read = 1;
           break;
         }
-      if (need_read) {
+      if (need_read)
+      {
         rc = pgm->paged_load(pgm, p, mem, mem->page_size,
-                            pageaddr, mem->page_size);
+                             pageaddr, mem->page_size);
         if (rc < 0)
           /* paged load failed, fall back to byte-at-a-time read below */
           failure = 1;
-      } else {
+      }
+      else
+      {
         avrdude_message(MSG_DEBUG, "%s: avr_read(): skipping page %u: no interesting data\n",
                         progname, pageaddr / mem->page_size);
       }
       nread++;
       report_progress(nread, npages, NULL);
     }
-    if (!failure) {
+    if (!failure)
+    {
       if (strcasecmp(mem->desc, "flash") == 0 ||
           strcasecmp(mem->desc, "application") == 0 ||
           strcasecmp(mem->desc, "apptable") == 0 ||
@@ -526,20 +558,25 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
     /* else: fall back to byte-at-a-time write, for historical reasons */
   }
 
-  if (strcmp(mem->desc, "signature") == 0) {
-    if (pgm->read_sig_bytes) {
+  if (strcmp(mem->desc, "signature") == 0)
+  {
+    if (pgm->read_sig_bytes)
+    {
       return pgm->read_sig_bytes(pgm, p, mem);
     }
   }
 
-  for (i=0; i < mem->size; i++) {
+  for (i = 0; i < mem->size; i++)
+  {
     if (vmem == NULL ||
-	(vmem->tags[i] & TAG_ALLOCATED) != 0)
+        (vmem->tags[i] & TAG_ALLOCATED) != 0)
     {
       rc = pgm->read_byte(pgm, p, mem, i, mem->buf + i);
-      if (rc != 0) {
+      if (rc != 0)
+      {
         avrdude_message(MSG_INFO, "avr_read(): error reading address 0x%04lx\n", i);
-        if (rc == -1) {
+        if (rc == -1)
+        {
           avrdude_message(MSG_INFO, "    read operation not supported for memory \"%s\"\n",
                           memtype);
           return -2;
@@ -561,26 +598,27 @@ int avr_read(PROGRAMMER * pgm, AVRPART * p, char * memtype,
     return i;
 }
 
-
 /*
  * write a page data at the specified address
  */
-int avr_write_page(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, 
+int avr_write_page(PROGRAMMER *pgm, AVRPART *p, AVRMEM *mem,
                    unsigned long addr)
 {
   unsigned char cmd[4];
   unsigned char res[4];
-  OPCODE * wp, * lext;
+  OPCODE *wp, *lext;
 
-  if (pgm->cmd == NULL) {
+  if (pgm->cmd == NULL)
+  {
     avrdude_message(MSG_INFO, "%s: Error: %s programmer uses avr_write_page() but does not\n"
-                    "provide a cmd() method.\n",
+                              "provide a cmd() method.\n",
                     progname, pgm->type);
     return -1;
   }
 
   wp = mem->op[AVR_OP_WRITEPAGE];
-  if (wp == NULL) {
+  if (wp == NULL)
+  {
     avrdude_message(MSG_INFO, "avr_write_page(): memory \"%s\" not configured for page writes\n",
                     mem->desc);
     return -1;
@@ -600,7 +638,8 @@ int avr_write_page(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
    * If this device has a "load extended address" command, issue it.
    */
   lext = mem->op[AVR_OP_LOAD_EXT_ADDR];
-  if (lext != NULL) {
+  if (lext != NULL)
+  {
     memset(cmd, 0, sizeof(cmd));
 
     avr_set_bits(lext, cmd);
@@ -624,9 +663,8 @@ int avr_write_page(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   return 0;
 }
 
-
-int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
-                   unsigned long addr, unsigned char data)
+int avr_write_byte_default(PROGRAMMER *pgm, AVRPART *p, AVRMEM *mem,
+                           unsigned long addr, unsigned char data)
 {
   unsigned char cmd[4];
   unsigned char res[4];
@@ -637,37 +675,45 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   unsigned long prog_time;
   unsigned char b;
   unsigned short caddr;
-  OPCODE * writeop;
+  OPCODE *writeop;
   int rc;
-  int readok=0;
+  int readok = 0;
   struct timeval tv;
 
-  if (pgm->cmd == NULL) {
+  if (pgm->cmd == NULL)
+  {
     avrdude_message(MSG_INFO, "%s: Error: %s programmer uses avr_write_byte_default() but does not\n"
-                    "provide a cmd() method.\n",
+                              "provide a cmd() method.\n",
                     progname, pgm->type);
     return -1;
   }
 
-  if (p->flags & AVRPART_HAS_TPI) {
-    if (pgm->cmd_tpi == NULL) {
+  if (p->flags & AVRPART_HAS_TPI)
+  {
+    if (pgm->cmd_tpi == NULL)
+    {
       avrdude_message(MSG_INFO, "%s: Error: %s programmer does not support TPI\n",
-          progname, pgm->type);
+                      progname, pgm->type);
       return -1;
     }
 
-    if (strcmp(mem->desc, "flash") == 0) {
+    if (strcmp(mem->desc, "flash") == 0)
+    {
       avrdude_message(MSG_INFO, "Writing a byte to flash is not supported for %s\n", p->desc);
       return -1;
-    } else if ((mem->offset + addr) & 1) {
+    }
+    else if ((mem->offset + addr) & 1)
+    {
       avrdude_message(MSG_INFO, "Writing a byte to an odd location is not supported for %s\n", p->desc);
       return -1;
     }
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
     /* must erase fuse first */
-    if (strcmp(mem->desc, "fuse") == 0) {
+    if (strcmp(mem->desc, "fuse") == 0)
+    {
       /* setup for SECTION_ERASE (high byte) */
       avr_tpi_setup_rw(pgm, mem, addr | 1, TPI_NVMCMD_SECTION_ERASE);
 
@@ -676,7 +722,8 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
       cmd[1] = 0xFF;
       rc = pgm->cmd_tpi(pgm, cmd, 2, NULL, 0);
 
-      while (avr_tpi_poll_nvmbsy(pgm));
+      while (avr_tpi_poll_nvmbsy(pgm))
+        ;
     }
 
     /* setup for WORD_WRITE */
@@ -690,13 +737,15 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
     cmd[1] = data;
     rc = pgm->cmd_tpi(pgm, cmd, 2, NULL, 0);
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
     return 0;
   }
 
   if (!mem->paged &&
-      (p->flags & AVRPART_IS_AT90S1200) == 0) {
+      (p->flags & AVRPART_IS_AT90S1200) == 0)
+  {
     /* 
      * check to see if the write is necessary by reading the existing
      * value and only write if we are changing the value; we can't
@@ -708,17 +757,21 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
      * programmed before.  Avoid that optimization on this device.
      */
     rc = pgm->read_byte(pgm, p, mem, addr, &b);
-    if (rc != 0) {
-      if (rc != -1) {
+    if (rc != 0)
+    {
+      if (rc != -1)
+      {
         return -2;
       }
       /*
        * the read operation is not support on this memory type
        */
     }
-    else {
+    else
+    {
       readok = 1;
-      if (b == data) {
+      if (b == data)
+      {
         return 0;
       }
     }
@@ -727,33 +780,36 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   /*
    * determine which memory opcode to use
    */
-  if (mem->op[AVR_OP_WRITE_LO]) {
+  if (mem->op[AVR_OP_WRITE_LO])
+  {
     if (addr & 0x01)
       writeop = mem->op[AVR_OP_WRITE_HI];
     else
       writeop = mem->op[AVR_OP_WRITE_LO];
     caddr = addr / 2;
   }
-  else if (mem->paged && mem->op[AVR_OP_LOADPAGE_LO]) {
+  else if (mem->paged && mem->op[AVR_OP_LOADPAGE_LO])
+  {
     if (addr & 0x01)
       writeop = mem->op[AVR_OP_LOADPAGE_HI];
     else
       writeop = mem->op[AVR_OP_LOADPAGE_LO];
     caddr = addr / 2;
   }
-  else {
+  else
+  {
     writeop = mem->op[AVR_OP_WRITE];
     caddr = addr;
   }
 
-  if (writeop == NULL) {
+  if (writeop == NULL)
+  {
 #if DEBUG
     avrdude_message(MSG_INFO, "avr_write_byte(): write not supported for memory type \"%s\"\n",
                     mem->desc);
 #endif
     return -1;
   }
-
 
   pgm->pgm_led(pgm, ON);
   pgm->err_led(pgm, OFF);
@@ -765,7 +821,8 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   avr_set_input(writeop, cmd, data);
   pgm->cmd(pgm, cmd, res);
 
-  if (mem->paged) {
+  if (mem->paged)
+  {
     /*
      * in paged addressing, single bytes to be written to the memory
      * page complete immediately, we only need to delay when we commit
@@ -775,7 +832,8 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
     return 0;
   }
 
-  if (readok == 0) {
+  if (readok == 0)
+  {
     /*
      * read operation not supported for this memory type, just wait
      * the max programming time and then return 
@@ -787,10 +845,12 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
 
   tries = 0;
   ready = 0;
-  while (!ready) {
+  while (!ready)
+  {
 
     if ((data == mem->readback[0]) ||
-        (data == mem->readback[1])) {
+        (data == mem->readback[1]))
+    {
       /* 
        * use an extra long delay when we happen to be writing values
        * used for polled data read-back.  In this case, polling
@@ -799,40 +859,46 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
        */
       usleep(mem->max_write_delay);
       rc = pgm->read_byte(pgm, p, mem, addr, &r);
-      if (rc != 0) {
+      if (rc != 0)
+      {
         pgm->pgm_led(pgm, OFF);
         pgm->err_led(pgm, OFF);
         return -5;
       }
     }
-    else {
-      gettimeofday (&tv, NULL);
+    else
+    {
+      gettimeofday(&tv, NULL);
       start_time = (tv.tv_sec * 1000000) + tv.tv_usec;
-      do {
+      do
+      {
         /*
          * Do polling, but timeout after max_write_delay.
 	 */
         rc = pgm->read_byte(pgm, p, mem, addr, &r);
-        if (rc != 0) {
+        if (rc != 0)
+        {
           pgm->pgm_led(pgm, OFF);
           pgm->err_led(pgm, ON);
           return -4;
         }
-        gettimeofday (&tv, NULL);
+        gettimeofday(&tv, NULL);
         prog_time = (tv.tv_sec * 1000000) + tv.tv_usec;
       } while ((r != data) &&
-               ((prog_time-start_time) < mem->max_write_delay));
+               ((prog_time - start_time) < mem->max_write_delay));
     }
 
     /*
      * At this point we either have a valid readback or the
      * max_write_delay is expired.
      */
-    
-    if (r == data) {
+
+    if (r == data)
+    {
       ready = 1;
     }
-    else if (mem->pwroff_after_write) {
+    else if (mem->pwroff_after_write)
+    {
       /*
        * The device has been flagged as power-off after write to this
        * memory type.  The reason we don't just blindly follow the
@@ -843,29 +909,33 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
       pgm->pgm_led(pgm, OFF);
       avrdude_message(MSG_INFO, "%s: this device must be powered off and back on to continue\n",
                       progname);
-      if (pgm->pinno[PPI_AVR_VCC]) {
+      if (pgm->pinno[PPI_AVR_VCC])
+      {
         avrdude_message(MSG_INFO, "%s: attempting to do this now ...\n", progname);
         pgm->powerdown(pgm);
         usleep(250000);
         rc = pgm->initialize(pgm, p);
-        if (rc < 0) {
+        if (rc < 0)
+        {
           avrdude_message(MSG_INFO, "%s: initialization failed, rc=%d\n", progname, rc);
           avrdude_message(MSG_INFO, "%s: can't re-initialize device after programming the "
-                          "%s bits\n", progname, mem->desc);
+                                    "%s bits\n",
+                          progname, mem->desc);
           avrdude_message(MSG_INFO, "%s: you must manually power-down the device and restart\n"
-                          "%s:   %s to continue.\n",
+                                    "%s:   %s to continue.\n",
                           progname, progname, progname);
           return -3;
         }
-        
+
         avrdude_message(MSG_INFO, "%s: device was successfully re-initialized\n",
-                progname);
+                        progname);
         return 0;
       }
     }
 
     tries++;
-    if (!ready && tries > 5) {
+    if (!ready && tries > 5)
+    {
       /*
        * we wrote the data, but after waiting for what should have
        * been plenty of time, the memory cell still doesn't match what
@@ -873,7 +943,7 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
        */
       pgm->pgm_led(pgm, OFF);
       pgm->err_led(pgm, ON);
-      
+
       return -6;
     }
   }
@@ -882,11 +952,10 @@ int avr_write_byte_default(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   return 0;
 }
 
-
 /*
  * write a byte of data at the specified address
  */
-int avr_write_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
+int avr_write_byte(PROGRAMMER *pgm, AVRPART *p, AVRMEM *mem,
                    unsigned long addr, unsigned char data)
 {
 
@@ -898,24 +967,27 @@ int avr_write_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
   /* If we write the fuses, then we need to tell safemode that they *should* change */
   safemode_memfuses(0, &safemode_lfuse, &safemode_hfuse, &safemode_efuse, &safemode_fuse);
 
-  if (strcmp(mem->desc, "fuse")==0) {
-      safemode_fuse = data;
+  if (strcmp(mem->desc, "fuse") == 0)
+  {
+    safemode_fuse = data;
   }
-  if (strcmp(mem->desc, "lfuse")==0) {
-      safemode_lfuse = data;
+  if (strcmp(mem->desc, "lfuse") == 0)
+  {
+    safemode_lfuse = data;
   }
-  if (strcmp(mem->desc, "hfuse")==0) {
-      safemode_hfuse = data;
+  if (strcmp(mem->desc, "hfuse") == 0)
+  {
+    safemode_hfuse = data;
   }
-  if (strcmp(mem->desc, "efuse")==0) {
-      safemode_efuse = data;
+  if (strcmp(mem->desc, "efuse") == 0)
+  {
+    safemode_efuse = data;
   }
-  
+
   safemode_memfuses(1, &safemode_lfuse, &safemode_hfuse, &safemode_efuse, &safemode_fuse);
 
   return pgm->write_byte(pgm, p, mem, addr, data);
 }
-
 
 /*
  * Write the whole memory region of the specified memory from the
@@ -926,61 +998,69 @@ int avr_write_byte(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem,
  *
  * Return the number of bytes written, or -1 if an error occurs.
  */
-int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size, 
+int avr_write(PROGRAMMER *pgm, AVRPART *p, char *memtype, int size,
               int auto_erase)
 {
-  int              rc;
-  int              newpage, page_tainted, flush_page, do_write;
-  int              wsize;
-  unsigned int     i, lastaddr;
-  unsigned char    data;
-  int              werror;
-  unsigned char    cmd[4];
-  AVRMEM         * m;
+  int rc;
+  int newpage, page_tainted, flush_page, do_write;
+  int wsize;
+  unsigned int i, lastaddr;
+  unsigned char data;
+  int werror;
+  unsigned char cmd[4];
+  AVRMEM *m;
 
   m = avr_locate_mem(p, memtype);
-  if (m == NULL) {
+  if (m == NULL)
+  {
     avrdude_message(MSG_INFO, "No \"%s\" memory for part %s\n",
-            memtype, p->desc);
+                    memtype, p->desc);
     return -1;
   }
 
   pgm->err_led(pgm, OFF);
 
-  werror  = 0;
+  werror = 0;
 
   wsize = m->size;
-  if (size < wsize) {
+  if (size < wsize)
+  {
     wsize = size;
   }
-  else if (size > wsize) {
+  else if (size > wsize)
+  {
     avrdude_message(MSG_INFO, "%s: WARNING: %d bytes requested, but memory region is only %d"
-                    "bytes\n"
-                    "%sOnly %d bytes will actually be written\n",
+                              "bytes\n"
+                              "%sOnly %d bytes will actually be written\n",
                     progname, size, wsize,
                     progbuf, wsize);
   }
 
-
   if ((p->flags & AVRPART_HAS_TPI) && m->page_size != 0 &&
-      pgm->cmd_tpi != NULL) {
+      pgm->cmd_tpi != NULL)
+  {
 
-    while (avr_tpi_poll_nvmbsy(pgm));
+    while (avr_tpi_poll_nvmbsy(pgm))
+      ;
 
     /* setup for WORD_WRITE */
     avr_tpi_setup_rw(pgm, m, 0, TPI_NVMCMD_WORD_WRITE);
 
     /* make sure it's aligned to a word boundary */
-    if (wsize & 0x1) {
+    if (wsize & 0x1)
+    {
       wsize++;
     }
 
     /* write words, low byte first */
-    for (lastaddr = i = 0; i < wsize; i += 2) {
+    for (lastaddr = i = 0; i < wsize; i += 2)
+    {
       if ((m->tags[i] & TAG_ALLOCATED) != 0 ||
-          (m->tags[i + 1] & TAG_ALLOCATED) != 0) {
+          (m->tags[i + 1] & TAG_ALLOCATED) != 0)
+      {
 
-        if (lastaddr != i) {
+        if (lastaddr != i)
+        {
           /* need to setup new address */
           avr_tpi_setup_rw(pgm, m, i, TPI_NVMCMD_WORD_WRITE);
           lastaddr = i;
@@ -995,14 +1075,16 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
 
         lastaddr += 2;
 
-        while (avr_tpi_poll_nvmbsy(pgm));
+        while (avr_tpi_poll_nvmbsy(pgm))
+          ;
       }
       report_progress(i, wsize, NULL);
     }
     return i;
   }
 
-  if (pgm->paged_write != NULL && m->page_size != 0) {
+  if (pgm->paged_write != NULL && m->page_size != 0)
+  {
     /*
      * the programmer supports a paged mode write
      */
@@ -1013,12 +1095,14 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
     /* quickly scan number of pages to be written to first */
     for (pageaddr = 0, npages = 0;
          pageaddr < wsize;
-         pageaddr += m->page_size) {
+         pageaddr += m->page_size)
+    {
       /* check whether this page must be written to */
       for (i = pageaddr;
            i < pageaddr + m->page_size;
            i++)
-        if ((m->tags[i] & TAG_ALLOCATED) != 0) {
+        if ((m->tags[i] & TAG_ALLOCATED) != 0)
+        {
           npages++;
           break;
         }
@@ -1026,16 +1110,19 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
 
     for (pageaddr = 0, failure = 0, nwritten = 0;
          !failure && pageaddr < wsize;
-         pageaddr += m->page_size) {
+         pageaddr += m->page_size)
+    {
       /* check whether this page must be written to */
       for (i = pageaddr, need_write = 0;
            i < pageaddr + m->page_size;
            i++)
-        if ((m->tags[i] & TAG_ALLOCATED) != 0) {
+        if ((m->tags[i] & TAG_ALLOCATED) != 0)
+        {
           need_write = 1;
           break;
         }
-      if (need_write) {
+      if (need_write)
+      {
         rc = 0;
         if (auto_erase)
           rc = pgm->page_erase(pgm, p, m, pageaddr);
@@ -1044,7 +1131,9 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
         if (rc < 0)
           /* paged write failed, fall back to byte-at-a-time write below */
           failure = 1;
-      } else {
+      }
+      else
+      {
         avrdude_message(MSG_DEBUG, "%s: avr_write(): skipping page %u: no interesting data\n",
                         progname, pageaddr / m->page_size);
       }
@@ -1056,15 +1145,17 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
     /* else: fall back to byte-at-a-time write, for historical reasons */
   }
 
-  if (pgm->write_setup) {
-      pgm->write_setup(pgm, p, m);
+  if (pgm->write_setup)
+  {
+    pgm->write_setup(pgm, p, m);
   }
 
   newpage = 1;
   page_tainted = 0;
   flush_page = 0;
 
-  for (i=0; i<wsize; i++) {
+  for (i = 0; i < wsize; i++)
+  {
     data = m->buf[i];
     report_progress(i, wsize, NULL);
 
@@ -1082,29 +1173,39 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
      * to actually write the page buffer to memory.
      */
     do_write = (m->tags[i] & TAG_ALLOCATED) != 0;
-    if (m->paged) {
-      if (newpage) {
+    if (m->paged)
+    {
+      if (newpage)
+      {
         page_tainted = do_write;
-      } else {
+      }
+      else
+      {
         page_tainted |= do_write;
       }
       if (i % m->page_size == m->page_size - 1 ||
-          i == wsize - 1) {
+          i == wsize - 1)
+      {
         /* last byte this page */
         flush_page = page_tainted;
         newpage = 1;
-      } else {
+      }
+      else
+      {
         flush_page = newpage = 0;
       }
     }
 
-    if (!do_write && !flush_page) {
+    if (!do_write && !flush_page)
+    {
       continue;
     }
 
-    if (do_write) {
+    if (do_write)
+    {
       rc = avr_write_byte(pgm, p, m, i, data);
-      if (rc) {
+      if (rc)
+      {
         avrdude_message(MSG_INFO, " ***failed;  ");
         avrdude_message(MSG_INFO, "\n");
         pgm->err_led(pgm, ON);
@@ -1116,20 +1217,23 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
      * check to see if it is time to flush the page with a page
      * write
      */
-    if (flush_page) {
+    if (flush_page)
+    {
       rc = avr_write_page(pgm, p, m, i);
-      if (rc) {
+      if (rc)
+      {
         avrdude_message(MSG_INFO, " *** page %d (addresses 0x%04x - 0x%04x) failed "
-                        "to write\n",
+                                  "to write\n",
                         i % m->page_size,
                         i - m->page_size + 1, i);
         avrdude_message(MSG_INFO, "\n");
         pgm->err_led(pgm, ON);
-          werror = 1;
+        werror = 1;
       }
     }
 
-    if (werror) {
+    if (werror)
+    {
       /*
        * make sure the error led stay on if there was a previous write
        * error, otherwise it gets cleared in avr_write_byte()
@@ -1141,27 +1245,25 @@ int avr_write(PROGRAMMER * pgm, AVRPART * p, char * memtype, int size,
   return i;
 }
 
-
-
 /*
  * read the AVR device's signature bytes
  */
-int avr_signature(PROGRAMMER * pgm, AVRPART * p)
+int avr_signature(PROGRAMMER *pgm, AVRPART *p)
 {
   int rc;
 
-  report_progress (0,1,"Reading");
+  report_progress(0, 1, "Reading");
   rc = avr_read(pgm, p, "signature", 0);
-  if (rc < 0) {
+  if (rc < 0)
+  {
     avrdude_message(MSG_INFO, "%s: error reading signature data for part \"%s\", rc=%d\n",
                     progname, p->desc, rc);
     return rc;
   }
-  report_progress (1,1,NULL);
+  report_progress(1, 1, NULL);
 
   return 0;
 }
-
 
 /*
  * Verify the memory buffer of p with that of v.  The byte range of v,
@@ -1170,46 +1272,51 @@ int avr_signature(PROGRAMMER * pgm, AVRPART * p)
  *
  * Return the number of bytes verified, or -1 if they don't match.
  */
-int avr_verify(AVRPART * p, AVRPART * v, char * memtype, int size)
+int avr_verify(AVRPART *p, AVRPART *v, char *memtype, int size)
 {
   int i;
-  unsigned char * buf1, * buf2;
+  unsigned char *buf1, *buf2;
   int vsize;
-  AVRMEM * a, * b;
+  AVRMEM *a, *b;
 
   a = avr_locate_mem(p, memtype);
-  if (a == NULL) {
+  if (a == NULL)
+  {
     avrdude_message(MSG_INFO, "avr_verify(): memory type \"%s\" not defined for part %s\n",
                     memtype, p->desc);
     return -1;
   }
 
   b = avr_locate_mem(v, memtype);
-  if (b == NULL) {
+  if (b == NULL)
+  {
     avrdude_message(MSG_INFO, "avr_verify(): memory type \"%s\" not defined for part %s\n",
                     memtype, v->desc);
     return -1;
   }
 
-  buf1  = a->buf;
-  buf2  = b->buf;
+  buf1 = a->buf;
+  buf2 = b->buf;
   vsize = a->size;
 
-  if (vsize < size) {
+  if (vsize < size)
+  {
     avrdude_message(MSG_INFO, "%s: WARNING: requested verification for %d bytes\n"
-                    "%s%s memory region only contains %d bytes\n"
-                    "%sOnly %d bytes will be verified.\n",
+                              "%s%s memory region only contains %d bytes\n"
+                              "%sOnly %d bytes will be verified.\n",
                     progname, size,
                     progbuf, memtype, vsize,
                     progbuf, vsize);
     size = vsize;
   }
 
-  for (i=0; i<size; i++) {
+  for (i = 0; i < size; i++)
+  {
     if ((b->tags[i] & TAG_ALLOCATED) != 0 &&
-        buf1[i] != buf2[i]) {
+        buf1[i] != buf2[i])
+    {
       avrdude_message(MSG_INFO, "%s: verification error, first mismatch at byte 0x%04x\n"
-                      "%s0x%02x != 0x%02x\n",
+                                "%s0x%02x != 0x%02x\n",
                       progname, i,
                       progbuf, buf1[i], buf2[i]);
       return -1;
@@ -1219,74 +1326,79 @@ int avr_verify(AVRPART * p, AVRPART * v, char * memtype, int size)
   return size;
 }
 
-
-int avr_get_cycle_count(PROGRAMMER * pgm, AVRPART * p, int * cycles)
+int avr_get_cycle_count(PROGRAMMER *pgm, AVRPART *p, int *cycles)
 {
-  AVRMEM * a;
+  AVRMEM *a;
   unsigned int cycle_count = 0;
   unsigned char v1;
   int rc;
   int i;
 
   a = avr_locate_mem(p, "eeprom");
-  if (a == NULL) {
+  if (a == NULL)
+  {
     return -1;
   }
 
-  for (i=4; i>0; i--) {
-    rc = pgm->read_byte(pgm, p, a, a->size-i, &v1);
-  if (rc < 0) {
-    avrdude_message(MSG_INFO, "%s: WARNING: can't read memory for cycle count, rc=%d\n",
-            progname, rc);
-    return -1;
-  }
+  for (i = 4; i > 0; i--)
+  {
+    rc = pgm->read_byte(pgm, p, a, a->size - i, &v1);
+    if (rc < 0)
+    {
+      avrdude_message(MSG_INFO, "%s: WARNING: can't read memory for cycle count, rc=%d\n",
+                      progname, rc);
+      return -1;
+    }
     cycle_count = (cycle_count << 8) | v1;
   }
 
-   /*
+  /*
    * If the EEPROM is erased, the cycle count reads 0xffffffff.
    * In this case we return a cycle_count of zero.
    * So, the calling function don't have to care about whether or not
    * the cycle count was initialized.
    */
-  if (cycle_count == 0xffffffff) {
+  if (cycle_count == 0xffffffff)
+  {
     cycle_count = 0;
   }
 
-  *cycles = (int) cycle_count;
+  *cycles = (int)cycle_count;
 
   return 0;
 }
 
-
-int avr_put_cycle_count(PROGRAMMER * pgm, AVRPART * p, int cycles)
+int avr_put_cycle_count(PROGRAMMER *pgm, AVRPART *p, int cycles)
 {
-  AVRMEM * a;
+  AVRMEM *a;
   unsigned char v1;
   int rc;
   int i;
 
   a = avr_locate_mem(p, "eeprom");
-  if (a == NULL) {
+  if (a == NULL)
+  {
     return -1;
   }
 
-  for (i=1; i<=4; i++) {
+  for (i = 1; i <= 4; i++)
+  {
     v1 = cycles & 0xff;
     cycles = cycles >> 8;
 
-    rc = avr_write_byte(pgm, p, a, a->size-i, v1);
-    if (rc < 0) {
+    rc = avr_write_byte(pgm, p, a, a->size - i, v1);
+    if (rc < 0)
+    {
       avrdude_message(MSG_INFO, "%s: WARNING: can't write memory for cycle count, rc=%d\n",
-              progname, rc);
+                      progname, rc);
       return -1;
     }
   }
 
   return 0;
-  }
+}
 
-int avr_chip_erase(PROGRAMMER * pgm, AVRPART * p)
+int avr_chip_erase(PROGRAMMER *pgm, AVRPART *p)
 {
   int rc;
 
@@ -1295,7 +1407,7 @@ int avr_chip_erase(PROGRAMMER * pgm, AVRPART * p)
   return rc;
 }
 
-int avr_unlock(PROGRAMMER * pgm, AVRPART * p)
+int avr_unlock(PROGRAMMER *pgm, AVRPART *p)
 {
   int rc = -1;
 
@@ -1324,7 +1436,7 @@ int avr_unlock(PROGRAMMER * pgm, AVRPART * p)
  * call for each of start, during and end cases. As things stand now,
  * that is not possible and makes maintenance a bit more work.
  */
-void report_progress (int completed, int total, char *hdr)
+void report_progress(int completed, int total, char *hdr)
 {
   static int last = 0;
   static double start_time;
@@ -1336,22 +1448,24 @@ void report_progress (int completed, int total, char *hdr)
     return;
 
   gettimeofday(&tv, NULL);
-  t = tv.tv_sec + ((double)tv.tv_usec)/1000000;
+  t = tv.tv_sec + ((double)tv.tv_usec) / 1000000;
 
-  if (hdr) {
+  if (hdr)
+  {
     last = 0;
     start_time = t;
-    update_progress (percent, t - start_time, hdr);
+    update_progress(percent, t - start_time, hdr);
   }
 
   if (percent > 100)
     percent = 100;
 
-  if (percent > last) {
+  if (percent > last)
+  {
     last = percent;
-    update_progress (percent, t - start_time, hdr);
+    update_progress(percent, t - start_time, hdr);
   }
 
   if (percent == 100)
-    last = 0;                   /* Get ready for next time. */
+    last = 0; /* Get ready for next time. */
 }
