@@ -219,15 +219,15 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
 
     putc('.', stderr);
     butterfly_send(pgm, mk_reset_cmd, sizeof(mk_reset_cmd));
-    usleep(20000);
+    usleep(20*1000);
 
     do
     {
       c = 27;
       butterfly_send(pgm, &c, 1);
-      usleep(20000);
+      usleep(20*1000);
       c = 0xaa;
-      usleep(80000);
+      usleep(80*1000);
       butterfly_send(pgm, &c, 1);
       if (mk_timeout % 10 == 0)
         putc('.', stderr);
@@ -251,11 +251,29 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
   {
     do
     {
-      putc('.', stderr);
-      butterfly_send(pgm, "\033", 1);
+      unsigned int cnt = 3;
+  
+      do
+      {
+        putc('.', stderr);
+        buf[0] = buf[1] = buf[2] = buf[3] = buf[4] = 0x1b;
+        butterfly_send(pgm, buf, 5);
+        usleep(10*1000);
+    
+        c = 0x00;
+        butterfly_recv(pgm, &c, 1);
+      } while ( (cnt-- > 0) && (c != 0x1b));
+
+      if (c == 0x1b)
+      {
+        
+      }
       butterfly_drain(pgm, 0);
+      usleep(100*1000);
+
       butterfly_send(pgm, "S", 1);
       butterfly_recv(pgm, &c, 1);
+
       if (c != '?')
       {
         putc('\n', stderr);
@@ -301,14 +319,12 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
   };
 
   /* See if programmer supports autoincrement of address. */
-
   butterfly_send(pgm, "a", 1);
   butterfly_recv(pgm, &PDATA(pgm)->has_auto_incr_addr, 1);
   if (PDATA(pgm)->has_auto_incr_addr == 'Y')
     avrdude_message(MSG_INFO, "Programmer supports auto addr increment.\n");
 
   /* Check support for buffered memory access, abort if not available */
-
   butterfly_send(pgm, "b", 1);
   butterfly_recv(pgm, &c, 1);
   if (c != 'Y')
@@ -325,22 +341,32 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
   avrdude_message(MSG_INFO, "Programmer supports buffered memory access with buffersize=%i bytes.\n",
                   PDATA(pgm)->buffersize);
 
-  /* Get list of devices that the programmer supports. */
-
-  butterfly_send(pgm, "t", 1);
-  avrdude_message(MSG_INFO, "\nProgrammer supports the following devices:\n");
-  devtype_1st = 0;
-  while (1)
+  /* humimeter Bootloader ?. */
+  if (strcmp(id,"HMCBoot") == 0)
   {
+    butterfly_send(pgm, "k", 1);
     butterfly_recv(pgm, &c, 1);
-    if (devtype_1st == 0)
-      devtype_1st = c;
+    if (c == 'Y')
+    {
+      avrdude_message(MSG_INFO, "Programmer supports crypto\n");
+    };
+  }
+  else
+  {/* Get list of devices that the programmer supports. */
+    butterfly_send(pgm, "t", 1);
+    avrdude_message(MSG_INFO, "\nProgrammer supports the following devices:\n");
+    devtype_1st = 0;
+    while (1)
+    {
+      butterfly_recv(pgm, &c, 1);
+      if (devtype_1st == 0)
+        devtype_1st = c;
 
-    if (c == 0)
-      break;
-    avrdude_message(MSG_INFO, "    Device code: 0x%02x\n", (unsigned int)(unsigned char)c);
-  };
-  avrdude_message(MSG_INFO, "\n");
+      if (c == 0)
+        break;
+      avrdude_message(MSG_INFO, "    Device code: 0x%02x\n", (unsigned int)(unsigned char)c);
+    };
+    avrdude_message(MSG_INFO, "\n");
 
   /* Tell the programmer which part we selected.
      According to the AVR109 code, this is ignored by the bootloader.  As
@@ -350,16 +376,17 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
      agreement on AVR910 device IDs beyond the ones from the original
      appnote 910. */
 
-  buf[0] = 'T';
-  buf[1] = devtype_1st;
+    buf[0] = 'T';
+    buf[1] = devtype_1st;
 
-  butterfly_send(pgm, buf, 2);
-  if (butterfly_vfy_cmd_sent(pgm, "select device") < 0)
-    return -1;
+    butterfly_send(pgm, buf, 2);
+    if (butterfly_vfy_cmd_sent(pgm, "select device") < 0)
+      return -1;
 
-  if (verbose)
-    avrdude_message(MSG_INFO, "%s: devcode selected: 0x%02x\n",
-                    progname, (unsigned)buf[1]);
+    if (verbose)
+      avrdude_message(MSG_INFO, "%s: devcode selected: 0x%02x\n",
+                      progname, (unsigned)buf[1]);
+  }
 
   butterfly_enter_prog_mode(pgm);
   butterfly_drain(pgm, 0);
