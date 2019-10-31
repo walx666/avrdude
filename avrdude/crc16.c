@@ -81,3 +81,51 @@ crcappend(unsigned char* message, unsigned long length)
   message[length] = (unsigned char)(crc & 0xff);
   message[length+1] = (unsigned char)((crc >> 8) & 0xff);
 }
+
+unsigned short
+crc_ccitt_sum(const unsigned char* message,  unsigned long length, unsigned short initial)
+{
+  unsigned short crc = initial;
+  unsigned char data;
+
+  for(;length>0;length--)
+  {
+  	data = *message++;
+    data ^= (unsigned char)(crc & 0xff);
+    data ^= data << 4;
+    crc = ((((unsigned short)data << 8) | (unsigned char)(crc>>8)) ^ (unsigned char)(data >> 4) 
+        ^ ((unsigned short)data << 3));
+  }
+
+  return(crc);
+}
+
+/*  
+ *  CRC-16/ARC 
+ *  Polynome : (0xA001) 
+ *    Normal        : 0x8005
+ *    Reversed      : 0xA001
+ *    Reciproc      : 0x4003	
+ *    Rev.Reciproc  : 0xC002
+*/
+unsigned short
+crc16_sum(const unsigned char* message,  unsigned long length,         
+          unsigned short polynom, unsigned short initial)
+{
+  unsigned short crc = initial;
+  int i;
+
+  for(;length>0;length--)
+  {
+  	crc ^= *message++;
+
+	  for (i = 0; i < 8; ++i)
+	  {
+	      if (crc & 1)
+	      	crc = (crc >> 1) ^ polynom;
+	      else
+		      crc = (crc >> 1);
+	  }
+  }
+	return crc;
+}

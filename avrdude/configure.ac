@@ -435,6 +435,9 @@ if test "$GCC" = yes; then
 	if test x$no_pointer_sign = xyes; then
 		ENABLE_WARNINGS="$ENABLE_WARNINGS -Wno-pointer-sign"
 	fi
+	# > walx
+	ENABLE_WARNINGS="$ENABLE_WARNINGS -Wno-deprecated-declarations"
+	# < walx
 fi
 AC_SUBST(ENABLE_WARNINGS,$ENABLE_WARNINGS)
 

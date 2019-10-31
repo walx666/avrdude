@@ -115,7 +115,7 @@ static void usage(void)
  "  -F                         Override invalid signature check.\n"
  "  -e                         Perform a chip erase.\n"
  "  -O                         Perform RC oscillator calibration (see AVR053). \n"
- "  -U <memtype>:r|w|v:<filename>[:format]\n"
+ "  -U <memtype>:r|w|v|c:<filename>[:format]\n"
  "                             Memory operation specification.\n"
  "                             Multiple -U options are allowed, each request\n"
  "                             is performed in the order specified.\n"
@@ -609,11 +609,35 @@ int main(int argc, char * argv [])
         }
         ladd(updates, upd);
 
-        if (verify && upd->op == DEVICE_WRITE) {
-          upd = dup_update(upd);
-          upd->op = DEVICE_VERIFY;
-          ladd(updates, upd);
+        if (verbose > 2) {
+          avrdude_message(MSG_INFO, "%s: upd->flags = 0x%04x\n",
+                  progname, upd->flags);
         }
+        
+        if (upd->op == DEVICE_VERIFY) {
+          if (upd->flags & UF_CRC_VERIFY) {
+            upd->op = DEVICE_CRC;
+          }
+        }
+        if (upd->op == DEVICE_WRITE) {
+          if (verify == 1) {
+            upd = dup_update(upd);
+            if (upd->flags & UF_CRC_VERIFY) {
+              upd->op = DEVICE_CRC;
+            }
+            else {
+              upd->op = DEVICE_VERIFY;
+            }
+            ladd(updates, upd);
+          }
+        } 
+        if (upd->op == DEVICE_READ) {
+          if (upd->flags & UF_CRC_VERIFY) {
+            upd = dup_update(upd);
+            upd->op = DEVICE_CRC;
+            ladd(updates, upd);
+          }
+        } 
         break;
 
       case 'v':
@@ -908,7 +932,7 @@ int main(int argc, char * argv [])
       const char *mtype = (p->flags & AVRPART_HAS_PDI)? "application": "flash";
       avrdude_message(MSG_NOTICE2, "%s: defaulting memtype in -U %c:%s option to \"%s\"\n",
                       progname,
-                      (upd->op == DEVICE_READ)? 'r': (upd->op == DEVICE_WRITE)? 'w': 'v',
+                      (upd->op == DEVICE_READ)? 'r': (upd->op == DEVICE_WRITE)? 'w': (upd->op == DEVICE_CRC)? 'c' : 'v',
                       upd->filename, mtype);
       if ((upd->memtype = strdup(mtype)) == NULL) {
         avrdude_message(MSG_INFO, "%s: out of memory\n", progname);

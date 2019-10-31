@@ -5,10 +5,18 @@
     //"terminal.integrated.cwd": "/c/users",
     "terminal.integrated.shellArgs.windows": [
         "--login",
+        //"-c",
+        //"cd $PROJECTPATH",
+        //        "-c",
+        //        ". go",
+        //        "cd /c/Users/alexanderw.SCHALLER/Source/avrdude/walx/avrdude/",
+        //       "-c",
+        //        "(\"cd \\`\"``cygpath '{0}'``\\`\"; /usr/bin/bash --login -i\" -f (Resolve-Path .).Path )",
     ],
     "terminal.integrated.env.windows": {
         "CHERE_INVOKING": "1",
         "MSYSTEM": "MINGW32",
+        "PROJECTPATH": "/c/Users/alexanderw.SCHALLER/Source/avrdude/walx/avrdude",
     },
     "[c]": {
         "editor.formatOnSave": false,
@@ -17,5 +25,9 @@
     "[cpp]": {
         "editor.formatOnSave": false,
         "editor.formatOnPaste": false
+    },
+    "files.associations": {
+        "limits.h": "c",
+        "libavrdude.h": "c"
     },
 }

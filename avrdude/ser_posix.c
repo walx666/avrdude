@@ -45,7 +45,25 @@
 #include "avrdude.h"
 #include "libavrdude.h"
 
-long serial_recv_timeout = 5000; /* ms */
+#ifndef SERIAL_REC_DEF_TIMEOUT_MS
+ #define SERIAL_REC_DEF_TIMEOUT_MS 5000
+#endif
+long serial_recv_timeout =  SERIAL_REC_DEF_TIMEOUT_MS; /* ms */
+
+#ifdef serial_settimeout
+static int ser_settimeout (long timeout)
+{
+   if (timeout < 1000)
+   {  
+	    serial_recv_timeout = SERIAL_REC_DEF_TIMEOUT_MS;
+   }
+   else
+   {
+      serial_recv_timeout = timeout;
+   }
+   return(serial_recv_timeout);
+}
+#endif		
 
 struct baud_mapping
 {
@@ -98,7 +116,7 @@ static speed_t serial_baud_lookup(long baud)
    * If a non-standard BAUD rate is used, issue
    * a warning (if we are verbose) and return the raw rate
    */
-  avrdude_message(MSG_NOTICE, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld",
+  avrdude_message(MSG_NOTICE, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld\n",
                   progname, baud);
 
   return baud;
@@ -113,6 +131,10 @@ static int ser_setspeed(union filedescriptor *fd, long baud)
   if (!isatty(fd->ifd))
     return -ENOTTY;
 
+#ifdef serial_settimeout
+		ser_settimeout(-1);
+#endif		
+  
   /*
    * initialize terminal modes
    */
@@ -555,6 +577,7 @@ struct serial_device serial_serdev =
         .recv = ser_recv,
         .drain = ser_drain,
         .set_dtr_rts = ser_set_dtr_rts,
+        .settimeout = ser_settimeout,
         .flags = SERDEV_FL_CANSETSPEED,
 };
 

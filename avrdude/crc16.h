@@ -11,8 +11,8 @@ extern "C" {
  */
 
 extern unsigned short crcsum(const unsigned char* message,
-			     unsigned long length,
-			     unsigned short crc);
+			    unsigned long length,
+			    unsigned short crc);
 /*
  * Verify that the last two bytes is a (LSB first) valid CRC of the
  * message.
@@ -26,6 +26,17 @@ extern int crcverify(const unsigned char* message,
  */
 extern void crcappend(unsigned char* message,
 		      unsigned long length);
+
+
+extern unsigned short crc16_sum(const unsigned char* message, 
+          		unsigned long length,         
+          		unsigned short polynom,       
+          		unsigned short initial);
+
+extern unsigned short crc_ccitt_sum(const unsigned char* message,  
+				unsigned long length,
+				unsigned short initial);
+
 
 #ifdef __cplusplus
 }

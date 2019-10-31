@@ -75,6 +75,17 @@ static void butterfly_teardown(PROGRAMMER *pgm)
   free(pgm->cookie);
 }
 
+static int butterfly_send_nchar(PROGRAMMER *pgm, char data, size_t cnt)
+{
+  int rv;
+
+  for (;cnt > 0; cnt--)
+  {
+    rv = serial_send(&pgm->fd, &data, 1);
+  }
+  return rv;
+}
+
 static int butterfly_send(PROGRAMMER *pgm, char *buf, size_t len)
 {
   return serial_send(&pgm->fd, (unsigned char *)buf, len);
@@ -249,32 +260,40 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
   }
   else
   {
+    butterfly_drain(pgm, 0);
+//    butterfly_send_nchar(pgm,0x1b,1);
+//    usleep(10*1000);
+
+#ifdef serial_settimeout
+  serial_settimeout(-1);
+#endif
+
     do
     {
-      unsigned int cnt = 3;
+      unsigned int cnt = 4;
   
       do
       {
         putc('.', stderr);
-        buf[0] = buf[1] = buf[2] = buf[3] = buf[4] = 0x1b;
-        butterfly_send(pgm, buf, 5);
+//        butterfly_send_nchar(pgm,0x1b,5);
+        butterfly_send_nchar(pgm,0x1b,cnt);
         usleep(10*1000);
     
         c = 0x00;
         butterfly_recv(pgm, &c, 1);
-      } while ( (cnt-- > 0) && (c != 0x1b));
+      } while ( (cnt-- > 3) && (c != 0x1b) );
 
       if (c == 0x1b)
       {
         
       }
       butterfly_drain(pgm, 0);
-      usleep(100*1000);
+      usleep(10*1000);
 
       butterfly_send(pgm, "S", 1);
       butterfly_recv(pgm, &c, 1);
 
-      if (c != '?')
+      if (c != '?') 
       {
         putc('\n', stderr);
         /*
@@ -288,7 +307,9 @@ static int butterfly_initialize(PROGRAMMER *pgm, AVRPART *p)
       }
     } while (c == '?');
   }
-
+#ifdef serial_settimeout
+  serial_settimeout(-1);
+#endif
   /* Get the HW and SW versions to see if the programmer is present. */
   butterfly_drain(pgm, 0);
 
@@ -423,6 +444,8 @@ static int butterfly_open(PROGRAMMER *pgm, char *port)
     return -1;
   }
 
+  serial_settimeout(1000);
+
   /*
    * drain any extraneous input
    */
@@ -490,22 +513,29 @@ static int butterfly_write_byte(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
   int size;
   int use_ext_addr = m->op[AVR_OP_LOAD_EXT_ADDR] != NULL;
 
-  if ((strcmp(m->desc, "application") == 0) || (strcmp(m->desc, "flash") == 0) || (strcmp(m->desc, "eeprom") == 0) || (strcmp(m->desc, "xeeprom") == 0))
+  if ((strcmp(m->desc, "application") == 0)   
+   || (strcmp(m->desc, "flash") == 0) 
+   || (strcmp(m->desc, "eeprom") == 0) 
+   || (strncmp(m->desc, "xe", 2) == 0))
   {
     cmd[0] = 'B';
     cmd[1] = 0;
 
-    if ((cmd[3] = toupper((int)(m->desc[0]))) == 'E')
+//    if ((cmd[3] = toupper((int)(m->desc[0]))) == 'E')
+    if ( (strncmp(m->desc, "eep", 3) == 0) || (m->desc[0] == 'e') )
     { /* write to eeprom */
       cmd[2] = 1;
+      cmd[3] = 'E';      
       cmd[4] = value;
       size = 5;
     }
     else
     {
-      if ((cmd[3] = toupper((int)(m->desc[0]))) == 'X')
+      if ( (strncmp(m->desc, "xe", 2) == 0) || (m->desc[0] == 'x') )
+//      if ((cmd[3] = toupper((int)(m->desc[0]))) == 'X')
       { /* write to xeeprom */
         cmd[2] = 1;
+        cmd[3] = 'X';
         cmd[4] = value;
         size = 5;
       }
@@ -617,13 +647,17 @@ static int butterfly_read_byte_xeeprom(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
 
 static int butterfly_page_erase(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m, unsigned int addr)
 {
-  // >> walx
   if (strcmp(m->desc, "flash") == 0)
-    return -1; /* not supported */
-               // << walx
+    return 0; /* nothing to do */ 
+//    return -1; /* not supported */
   if (strcmp(m->desc, "eeprom") == 0)
     return 0; /* nothing to do */
-  avrdude_message(MSG_INFO, "%s: butterfly_page_erase() called on memory type \"%s\"\n",
+//  if (strcmp(m->desc, "xeeprom") == 0)
+//    return 0; /* nothing to do */
+  if (strncmp(m->desc, "xe", 2) == 0)
+    return 0; /* nothing to do */
+  
+  avrdude_message(MSG_INFO, "\n%s: butterfly_page_erase() called on memory type \"%s\"\n",
                   progname, m->desc);
   return -1;
 }
@@ -643,22 +677,31 @@ static int butterfly_read_byte(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
     return butterfly_read_byte_eeprom(pgm, p, m, addr, value);
   }
 
-  if (strcmp(m->desc, "xeeprom") == 0)
+//  if ((strcmp(m->desc, "xeeprom") == 0) || (strncmp(m->desc, "xe", 2) == 0))
+  if (strncmp(m->desc, "xe", 2) == 0)
   {
     return butterfly_read_byte_xeeprom(pgm, p, m, addr, value);
   }
 
-  if (strcmp(m->desc, "lfuse") == 0)
+  if ((strcmp(m->desc, "lfuse") == 0) || (strcmp(m->desc, "fuse1") == 0) || (strcmp(m->desc, "fu1") == 0))
   {
     cmd = 'F';
   }
-  else if (strcmp(m->desc, "hfuse") == 0)
+  else if ((strcmp(m->desc, "hfuse") == 0) || (strcmp(m->desc, "fuse2") == 0) || (strcmp(m->desc, "fu2") == 0))
   {
     cmd = 'N';
   }
-  else if (strcmp(m->desc, "efuse") == 0)
+  else if ((strcmp(m->desc, "efuse") == 0) || (strcmp(m->desc, "fuse3") == 0) || (strcmp(m->desc, "fu3") == 0))
   {
     cmd = 'Q';
+  }
+  else if ((strcmp(m->desc, "fuse4") == 0) || (strcmp(m->desc, "fu4") == 0))
+  {
+    cmd = 'n';
+  }
+  else if ((strcmp(m->desc, "fuse5") == 0) || (strcmp(m->desc, "fu5") == 0))
+  {
+    cmd = 'q';
   }
   else if (strcmp(m->desc, "lock") == 0)
   {
@@ -683,7 +726,8 @@ static int butterfly_paged_write(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
   int use_ext_addr = m->op[AVR_OP_LOAD_EXT_ADDR] != NULL;
   unsigned int wr_size = 2;
 
-  if (strcmp(m->desc, "applcation") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strcmp(m->desc, "xeeprom"))
+//  if (strcmp(m->desc, "applcation") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strcmp(m->desc, "xeeprom") && strncmp(m->desc, "xe", 2))
+  if (strcmp(m->desc, "applcation") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strncmp(m->desc, "xe", 2))
     return -2;
 
   if (m->desc[0] == 'e')
@@ -735,7 +779,7 @@ static int butterfly_paged_write(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
   return addr;
 }
 
-static int butterfly_crc16(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
+static int butterfly_crc(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
                            unsigned int page_size,
                            unsigned long addr, unsigned long n_bytes, unsigned int *value)
 {
@@ -746,13 +790,16 @@ static int butterfly_crc16(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
   int use_ext_addr = m->op[AVR_OP_LOAD_EXT_ADDR] != NULL;
 
   /* check parameter syntax: only "flash" or "eeprom" is allowed */
-  if (strcmp(m->desc, "application") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strcmp(m->desc, "xeeprom"))
+//  if (strcmp(m->desc, "application") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strcmp(m->desc, "xeeprom") && strncmp(m->desc, "xe", 2))
+  if (strcmp(m->desc, "application") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strncmp(m->desc, "xe", 2))
     return -2;
 
-  if (m->desc[0] == 'e')
+//  if (m->desc[0] == 'e')
+  if (strncmp(m->desc, "eep", 3) == 0)
     rd_size = blocksize = 1; /* Read from eeprom single bytes only */
 
-  if (m->desc[0] == 'x')
+//  if (m->desc[0] == 'x')
+  if (strncmp(m->desc, "xe", 2) == 0)
   { // blocksize = 0x80;		/* Read from xeeprom > blocksize = 0x80 */
     rd_size = 1;
     use_ext_addr = TRUE;
@@ -805,13 +852,15 @@ static int butterfly_paged_load(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
   int use_ext_addr = m->op[AVR_OP_LOAD_EXT_ADDR] != NULL;
 
   /* check parameter syntax: only "flash" or "eeprom" is allowed */
-  if (strcmp(m->desc, "application") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strcmp(m->desc, "xeeprom"))
+  if (strcmp(m->desc, "application") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strncmp(m->desc, "xe", 2))
     return -2;
 
-  if (m->desc[0] == 'e')
+//  if (m->desc[0] == 'e')
+  if (strncmp(m->desc, "eep", 3) == 0)
     rd_size = blocksize = 1; /* Read from eeprom single bytes only */
 
-  if (m->desc[0] == 'x')
+//  if (m->desc[0] == 'x')
+  if (strncmp(m->desc, "xe", 2) == 0)
   { // blocksize = 0x80;		/* Read from xeeprom > blocksize = 0x80 */
     rd_size = 1;
     use_ext_addr = TRUE;
@@ -904,7 +953,7 @@ void butterfly_initpgm(PROGRAMMER *pgm)
   pgm->page_erase = butterfly_page_erase;
   pgm->paged_write = butterfly_paged_write;
   pgm->paged_load = butterfly_paged_load;
-  pgm->crc = butterfly_crc16;
+  pgm->crc = butterfly_crc;
 
   pgm->read_sig_bytes = butterfly_read_sig_bytes;
 

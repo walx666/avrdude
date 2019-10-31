@@ -27,6 +27,8 @@
 
 #include "avrdude.h"
 #include "libavrdude.h"
+#include "term.h"
+#include "crc16.h"
 
 UPDATE * parse_op(char * s)
 {
@@ -41,6 +43,8 @@ UPDATE * parse_op(char * s)
     avrdude_message(MSG_INFO, "%s: out of memory\n", progname);
     exit(1);
   }
+
+  upd->flags = 0;
 
   i = 0;
   p = s;
@@ -85,10 +89,10 @@ UPDATE * parse_op(char * s)
     avrdude_message(MSG_INFO, "%s: invalid I/O mode '%c' in update specification\n",
             progname, *p);
     avrdude_message(MSG_INFO, "  allowed values are:\n"
-                    "    c = crc device\n"
                     "    r = read device\n"
                     "    w = write device\n"
-                    "    v = verify device\n" );
+                    "    v = verify device\n"
+                    "    c = crc device\n" );
 
     free(upd->memtype);
     free(upd);
@@ -97,11 +101,23 @@ UPDATE * parse_op(char * s)
 
   p++;
 
+  if ( (*p == 'c') && ( (upd->op == DEVICE_READ) || (upd->op == DEVICE_WRITE) || (upd->op == DEVICE_VERIFY) ) )
+  {
+    upd->flags |= UF_CRC_VERIFY;
+    p++;
+  }
+
   if (*p != ':') {
-    avrdude_message(MSG_INFO, "%s: invalid update specification\n", progname);
-    free(upd->memtype);
-    free(upd);
-    return NULL;
+/*    if (upd->op == DEVICE_CRC) {
+       upd->flags |= UF_NOFILE;
+       return upd;
+    }
+    else { */
+      avrdude_message(MSG_INFO, "%s: invalid update specification\n", progname);
+      free(upd->memtype);
+      free(upd);
+      return NULL;
+//    }
   }
 
   p++;
@@ -197,6 +213,7 @@ UPDATE * new_update(int op, char * memtype, int filefmt, char * filename)
   u->filename = strdup(filename);
   u->op = op;
   u->format = filefmt;
+  u->flags = 0;
 
   return u;
 }
@@ -249,19 +266,22 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
     report_progress(1,1,NULL);
     size = rc;
 
-    if (quell_progress < 2) {
-      if (rc == 0)
-        avrdude_message(MSG_INFO, "%s: Flash is empty, resulting file has no contents.\n",
+    if ((upd->flags & UF_NOFILE) == 0) {
+      if (quell_progress < 2) {
+        if (rc == 0)
+          avrdude_message(MSG_INFO, "%s: Flash is empty, resulting file has no contents.\n",
                         progname);
-      avrdude_message(MSG_INFO, "%s: writing output file \"%s\"\n",
+        avrdude_message(MSG_INFO, "%s: writing output file \"%s\"\n",
                       progname,
                       strcmp(upd->filename, "-")==0 ? "<stdout>" : upd->filename);
-    }
-    rc = fileio(FIO_WRITE, upd->filename, upd->format, p, upd->memtype, size);
-    if (rc < 0) {
-      avrdude_message(MSG_INFO, "%s: write to file '%s' failed\n",
+      }
+  
+      rc = fileio(FIO_WRITE, upd->filename, upd->format, p, upd->memtype, size);
+      if (rc < 0) {
+        avrdude_message(MSG_INFO, "%s: write to file '%s' failed\n",
               progname, upd->filename);
-      return -1;
+        return -1;
+      }
     }
   }
   else if (upd->op == DEVICE_WRITE) {
@@ -315,78 +335,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
       avrdude_message(MSG_INFO, "%s: %d bytes of %s written\n", progname,
             vsize, mem->desc);
     }
-
   }
-  else if (upd->op == DEVICE_CRC) {
-    /*
-     * verify that the in memory file (p->mem[AVR_M_FLASH|AVR_M_EEPROM])
-     * is the same as what is on the chip
-     */
-    pgm->vfy_led(pgm, ON);
-
-    if (quell_progress < 2) {
-      avrdude_message(MSG_INFO, "%s: verifying %s memory against %s:\n",
-            progname, mem->desc, upd->filename);
-
-      avrdude_message(MSG_INFO, "%s: load data %s data from input file %s:\n",
-            progname, mem->desc, upd->filename);
-    }
-
-    rc = fileio(FIO_READ, upd->filename, upd->format, p, upd->memtype, -1);
-    if (rc < 0) {
-      avrdude_message(MSG_INFO, "%s: read from file '%s' failed\n",
-              progname, upd->filename);
-      return -1;
-    }
-    v = avr_dup_part(p);
-    size = rc;
-    if (quell_progress < 2) {
-      avrdude_message(MSG_INFO, "%s: input file %s contains %d bytes\n",
-            progname, upd->filename, size);
-      avrdude_message(MSG_INFO, "%s: reading on-chip %s data:\n",
-            progname, mem->desc);
-    }
-
-    report_progress (0,1,"Reading");
-    rc = avr_crc(pgm, p, mem, mem->blocksize, 0, mem->size, &mem->crc_calc);  
-//    int avr_crc  (PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned int page_size, unsigned long addr, unsigned long n_bytes, unsigned int * value);
-//    rc = avr_crc(pgm, p, mem, 0, &mem->crc_calc);
-    
-    avrdude_message(MSG_INFO, "\ncrc16 of memory type \"%s\"= \"%04X\"\n",
-            mem->desc, mem->crc_calc);   
-    
-//    mem->crc,
-//    int avr_crc(PROGRAMMER * pgm, AVRPART * p, AVRMEM * mem, unsigned long addr, unsigned int * value)
-      
-//    rc = avr_read(pgm, p, upd->memtype, v);
-    if (rc < 0) {
-      avrdude_message(MSG_INFO, "%s: failed to read all of %s memory, rc=%d\n",
-              progname, mem->desc, rc);
-      pgm->err_led(pgm, ON);
-      return -1;
-    }
-    report_progress (1,1,NULL);
-
-
-
-    if (quell_progress < 2) {
-      avrdude_message(MSG_INFO, "%s: verifying ...\n", progname);
-    }
-    rc = avr_verify(p, v, upd->memtype, size);
-    if (rc < 0) {
-      avrdude_message(MSG_INFO, "%s: verification error; content mismatch\n",
-              progname);
-      pgm->err_led(pgm, ON);
-      return -1;
-    }
-
-    if (quell_progress < 2) {
-      avrdude_message(MSG_INFO, "%s: %d bytes of %s verified\n",
-              progname, rc, mem->desc);
-    }
-
-    pgm->vfy_led(pgm, OFF);
-  } 
   else if (upd->op == DEVICE_VERIFY) {
     /*
      * verify that the in memory file (p->mem[AVR_M_FLASH|AVR_M_EEPROM])
@@ -443,6 +392,94 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
     if (quell_progress < 2) {
       avrdude_message(MSG_INFO, "%s: %d bytes of %s verified\n",
               progname, rc, mem->desc);
+    }
+
+    pgm->vfy_led(pgm, OFF);
+  } 
+  else if (upd->op == DEVICE_CRC) {
+    /*
+     * verify that the in memory file (p->mem[AVR_M_FLASH|AVR_M_EEPROM])
+     * is the same as what is on the chip
+     */
+    pgm->vfy_led(pgm, ON);
+
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: verifying %s memory against %s:\n",
+            progname, mem->desc, upd->filename);
+
+      avrdude_message(MSG_INFO, "%s: load data %s data from input file %s:\n",
+            progname, mem->desc, upd->filename);
+    }
+
+    rc = fileio(FIO_READ, upd->filename, upd->format, p, upd->memtype, -1);
+    if (rc < 0) {
+      avrdude_message(MSG_INFO, "%s: read from file '%s' failed\n",
+              progname, upd->filename);
+      return -1;
+    }
+    v = avr_dup_part(p);
+    size = rc;
+
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: input file %s contains %d bytes\n",
+            progname, upd->filename, size);
+      avrdude_message(MSG_INFO, "%s: reading on-chip %s crcitt:\n",
+            progname, mem->desc);
+    }
+
+//    report_progress (0,1,"Reading...\n\n");
+//    avrdude_message(MSG_INFO, "\n\n");
+    
+    unsigned int crc_expected = 0, crc_host = 0;
+    
+//    crc_expected = crcsum(mem->buf, size, 0);
+//    crc_expected = crc16_sum(mem->buf, size, 0x8005, 0xffff); // P=0xa001, I=0xffff, RE=1, RA=1, 
+    crc_expected = crc_ccitt_sum(mem->buf, size, 0xffff);
+
+//    avrdude_message(MSG_INFO, "\n");
+//    hexdump_buf(stdout, 0x0, mem->buf, 0x200);
+
+//    crc_expected = crcsum(mem->buf, mem->readsize,  0xffff);
+//      rc = avr_crc(pgm, p, mem, mem->page_size, 0, size, &crc2);
+    report_progress (0,1,"Reading");
+    rc = pgm->crc(pgm, p, mem, mem->readsize, 0, size, &crc_host);
+
+//    avrdude_message(MSG_INFO, "> avr_crc   = %04x\n", crc_host);
+    if (rc < 0) {
+      avrdude_message(MSG_INFO, "%s: failed to read crc of %s memory, rc=%d\n",
+              progname, mem->desc, rc);
+      pgm->err_led(pgm, ON);
+      return -1;
+    }
+    report_progress (1,1,NULL);
+    
+    if (verbose > 2)
+    {
+      avrdude_message(MSG_INFO, "%s: > crc-file  = %04x\n", progname, crc_expected);
+      avrdude_message(MSG_INFO, "%s: > crc-avr   = %04x\n", progname, crc_host);
+      avrdude_message(MSG_INFO, "%s: > Blocksize = %d\n", progname, mem->blocksize);
+      avrdude_message(MSG_INFO, "%s: > Pagesize  = %d (0x%X)\n", progname, mem->page_size, mem->page_size);
+      avrdude_message(MSG_INFO, "%s: > ReadSize  = %d (0x%X)\n", progname, mem->readsize, mem->readsize);
+      avrdude_message(MSG_INFO, "%s: > Offset    = %X\n", progname, mem->offset);
+      avrdude_message(MSG_INFO, "%s: > Size      = %d (0x%X)\n", progname, size, size);
+    }
+/*
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: verifying ...\n", progname);
+    }
+*/
+    if (crc_expected != crc_host) {
+      avrdude_message(MSG_INFO, "%s: verification error; content mismatch\n",
+              progname);
+      avrdude_message(MSG_INFO, "%s: %d bytes of %s verified with crcitt 0x%04x != 0x%04x (file != avr)\n",
+              progname, size, mem->desc,crc_expected,crc_host);
+      pgm->err_led(pgm, ON);
+      return -1;
+    }
+
+    if (quell_progress < 2) {
+      avrdude_message(MSG_INFO, "%s: %d bytes of %s verified with crcitt 0x%04x == 0x%04x (file == avr)\n",
+              progname, size, mem->desc,crc_expected,crc_host);
     }
 
     pgm->vfy_led(pgm, OFF);

@@ -40,6 +40,10 @@ typedef unsigned long pinmask_t;
 #endif
 #endif
 
+#ifndef PATH_MAX
+ #define PATH_MAX 260 
+#endif
+
 
 /* formerly lists.h */
 
@@ -66,8 +70,7 @@ typedef void * LNODEID;
 
 #define PUSH(s,d)    lins_n(s,d,1)   /* push 'd' onto the stack */
 #define POP(s)       lrmv_n(s,1)     /* pop the stack */
-#define LOOKSTACK(s) lget_n(s,1)     /* look at the top of the stack, 
-					but don't pop */
+#define LOOKSTACK(s) lget_n(s,1)     /* look at the top of the stack, but don't pop */
 
 
 #define ENQUEUE(q,d) lins_n(q,d,1)   /* put 'd' on the end of the queue */
@@ -75,8 +78,7 @@ typedef void * LNODEID;
 					the queue */
 #define REQUEUE(q,d) ladd(q,d)       /* re-insert (push) item back on the
 					front of the queue */
-#define LOOKQUEUE(q) lget(q)         /* return next item on the queue, 
-					but don't dequeue */
+#define LOOKQUEUE(q) lget(q)         /* return next item on the queue, but don't dequeue */
 #define QUEUELEN(q)  lsize(q)       /* length of the queue */
 
 
@@ -566,11 +568,14 @@ struct serial_device
   int (*drain)(union filedescriptor *fd, int display);
 
   int (*set_dtr_rts)(union filedescriptor *fd, int is_on);
+  int (*settimeout)(long timeout);
 
   int flags;
 #define SERDEV_FL_NONE         0x0000 /* no flags */
 #define SERDEV_FL_CANSETSPEED  0x0001 /* device can change speed */
 };
+
+#define SERIAL_REC_DEF_TIMEOUT_MS	5000
 
 extern struct serial_device *serdev;
 extern struct serial_device serial_serdev;
@@ -586,6 +591,7 @@ extern struct serial_device usbhid_serdev;
 #define serial_recv (serdev->recv)
 #define serial_drain (serdev->drain)
 #define serial_set_dtr_rts (serdev->set_dtr_rts)
+#define serial_settimeout (serdev->settimeout)
 
 /* formerly pgm.h */
 
@@ -865,8 +871,10 @@ enum {
 
 enum updateflags {
   UF_NONE = 0,
-  UF_NOWRITE = 1,
-  UF_AUTO_ERASE = 2,
+  UF_NOWRITE = 0x01,
+  UF_AUTO_ERASE = 0x02,
+  UF_CRC_VERIFY = 0x100,
+  UF_NOFILE = 0x200,
 };
 
 
@@ -875,6 +883,7 @@ typedef struct update_t {
   int    op;
   char * filename;
   int    format;
+  int    flags;
 } UPDATE;
 
 #ifdef __cplusplus

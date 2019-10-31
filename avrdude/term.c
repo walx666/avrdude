@@ -95,7 +95,7 @@ static int cmd_verbose (PROGRAMMER * pgm, struct avrpart * p,
 		      int argc, char *argv[]);
 
 struct command cmd[] = {
-  { "crc", cmd_crc, "crc16 of memory : %s <memtype> <addr> <N-Bytes>" },
+  { "crc", cmd_crc, "crc of memory : %s <memtype> <addr> <N-Bytes>" },
   { "dump",  cmd_dump,  "dump memory  : %s <memtype> <addr> <N-Bytes>" },
   { "read",  cmd_dump,  "alias for dump" },
   { "write", cmd_write, "write memory : %s <memtype> <addr> <b1> <b2> ... <bN>" },
@@ -150,8 +150,8 @@ static int nexttok(char * buf, char ** tok, char ** next)
   return 0;
 }
 
-
-static int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
+// static int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
+int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
 {
   char * hexdata = "0123456789abcdef";
   char * b;
@@ -182,8 +182,8 @@ static int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
   return 1;
 }
 
-
-static int chardump_line(char * buffer, unsigned char * p, int n, int pad)
+//static int chardump_line(char * buffer, unsigned char * p, int n, int pad)
+int chardump_line(char * buffer, unsigned char * p, int n, int pad)
 {
   int i;
   char b [ 128 ];
@@ -205,8 +205,8 @@ static int chardump_line(char * buffer, unsigned char * p, int n, int pad)
   return 0;
 }
 
-
-static int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
+// static int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
+ int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
 {
   int addr;
   int n;
@@ -237,7 +237,7 @@ static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
 {
   static char prevmem[128] = {0};
   char * e;
-  unsigned char * buf;
+//  unsigned char * buf;
   int maxsize;
   unsigned int crcval;
   static long addr=0;
@@ -247,7 +247,7 @@ static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
   int rc;
 
   if (!((argc == 2) || (argc == 4))) {
-    avrdude_message(MSG_INFO, "Usage: crc16 <memtype> [<addr> <len>]\n");
+    avrdude_message(MSG_INFO, "Usage: crc <memtype> [<addr> <len>]\n");
     return -1;
   }
 
@@ -267,17 +267,24 @@ static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
     return -1;
   }
 
+  if (argc == 2) 
+  {  
+    // addr = mem->offset;
+    addr = 0;
+    len = mem->size;
+  }
+
   if (argc == 4) {
     addr = strtoul(argv[2], &e, 0);
     if (*e || (e == argv[2])) {
-      avrdude_message(MSG_INFO, "%s (crc16): can't parse address \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s (crc): can't parse address \"%s\"\n",
               progname, argv[2]);
       return -1;
     }
 
     len = strtol(argv[3], &e, 0);
     if (*e || (e == argv[3])) {
-      avrdude_message(MSG_INFO, "%s (crc16): can't parse length \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s (crc): can't parse length \"%s\"\n",
               progname, argv[3]);
       return -1;
     }
@@ -291,24 +298,21 @@ static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
       addr = 0;
     }
     else {
-      avrdude_message(MSG_INFO, "%s (crc16): address 0x%05lx is out of range for %s memory\n",
+      avrdude_message(MSG_INFO, "%s (crc): address 0x%05lx is out of range for %s memory\n",
                       progname, addr, mem->desc);
       return -1;
     }
   }
 
   /* trim len if nessary to not read past the end of memory */
-  buf = malloc(len);
+  /*buf = malloc(len);
   if (buf == NULL) {
-    avrdude_message(MSG_INFO, "%s (crc16): out of memory\n", progname);
+    avrdude_message(MSG_INFO, "%s (crc): out of memory\n", progname);
     return -1;
-  }
+  }*/
 
   rc = pgm->crc(pgm, p, mem, mem->page_size, addr, len, &crcval);
-/*  int  (*crc)             (struct programmer_t * pgm, AVRPART * p, AVRMEM * m,
-                          unsigned int page_size, unsigned long baseaddr,
-                          unsigned long n_bytes, unsigned int * value);
-*/
+
   if (rc != 0) {
     avrdude_message(MSG_INFO, "error reading %s address 0x%05lx of part %s\n",
            mem->desc, addr, p->desc);
@@ -318,19 +322,14 @@ static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
    return -1;  
   }
 
-//  avrdude_message(MSG_INFO, "crc16 of memory type \"%s\"= \"%04X\"\n",
-//            mem->desc, crcval);
-
-  avrdude_message(MSG_INFO, "crc16 of memory type \"%s\"= \"%04X\"\n",
-            memtype, mem->crc_calc);
-
-//crcval
+  avrdude_message(MSG_INFO, "crc @ %s[0-%d] = 0x%04X",
+            mem->desc, len, mem->crc_calc);
 
   fprintf(stdout, "\n");
 
-  free(buf);
+ // free(buf);
 
-  addr = addr + len;
+ // addr = addr + len;
 
   return 0;
 }

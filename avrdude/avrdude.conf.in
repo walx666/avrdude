@@ -4814,9 +4814,21 @@ part parent "m644p"
 
     memory "xeeprom"
         size		    = 0x80000;
-        offset	  	= 0x000000;
+        offset	  	= 0x00000;
         page_size   = 0x80;
         readsize  	= 0x80;
+    ;
+    memory "xe1"
+        size		    = 0x10000;
+        offset		  = 0x00000;
+        page_size	  = 0x80;
+        readsize	  = 0x80;
+    ;
+    memory "xe2"
+        size		    = 0x40000;
+        offset		  = 0x40000;
+        page_size	  = 0x80;
+        readsize	  = 0x80;
     ;
 ;
 
@@ -14540,8 +14552,20 @@ part parent "x256c3"
     usbpid	= 0x2fda;
 
     memory "xeeprom"
-        size		= 0x80000;
-        offset		= 0x000000;
+        size		  = 0x80000;
+        offset		= 0x00000;
+        page_size	= 0x100;
+        readsize	= 0x100;
+    ;
+    memory "xe1"
+        size		  = 0x40000;
+        offset		= 0x00000;
+        page_size	= 0x100;
+        readsize	= 0x100;
+    ;
+    memory "xe2"
+        size		  = 0x40000;
+        offset		= 0x40000;
         page_size	= 0x100;
         readsize	= 0x100;
     ;

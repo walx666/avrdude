@@ -1,0 +1,102 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    //"terminal.integrated.shell.windows": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
+    "options": {
+        "env": {
+            "CHERE_INVOKING": "1",
+            "MSYSTEM": "MINGW32",
+            "PROJECTPATH": "/c/Users/alexanderw.SCHALLER/Source/avrdude/walx/avrdude",
+        }
+    },
+    "tasks": [
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "make",
+            "options": {
+                "shell": {
+                    "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+                    "args": [
+                        "--login",
+                        "-c",
+                        "make",
+                    ]
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ]
+            },
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "clean",
+            "options": {
+                "shell": {
+                    "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+                    "args": [
+                        "--login",
+                        "-c",
+                        "make clean",
+                    ]
+                }
+            },
+        },
+        {
+            "label": "configure",
+            "type": "shell",
+            "command": "configure",
+            "options": {
+                "shell": {
+                    "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+                    "args": [
+                        "--login",
+                        "-c",
+                        "./configure",
+                    ]
+                }
+            },
+        },
+        {
+            "label": "bootstrap",
+            "type": "shell",
+            "command": "bootstrap",
+            "options": {
+                "shell": {
+                    "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+                    "args": [
+                        "--login",
+                        "-c",
+                        "./bootstrap",
+                    ]
+                }
+            },
+        },
+        {
+            "label": "strip",
+            "type": "shell",
+            "command": "strip",
+            "options": {
+                "shell": {
+                    "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+                    "args": [
+                        "--login",
+                        "-c",
+                        "strip.exe $PROJECTPATH/avrdude.exe",
+                    ]
+                }
+            },
+        }
+    ]
+}
