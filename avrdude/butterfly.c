@@ -731,7 +731,8 @@ static int butterfly_paged_write(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
     return -2;
 
   if (m->desc[0] == 'e')
-    wr_size = blocksize = 1; /* Write to eeprom single bytes only */
+    wr_size = 1;
+//    wr_size = blocksize = 1; /* Write to eeprom single bytes only */
 
   if (m->desc[0] == 'x')
     wr_size = 1;
@@ -831,12 +832,6 @@ static int butterfly_crc(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
 
     *value = (((unsigned int)m->buf[0] << 8) | m->buf[1]);
     m->crc_calc = *value;
-
-    /* Returned signature has wrong order. */
-    //  if (tmp = (((unsigned int)m->buf[0]<<8) | m->buf[1]);
-
-    /*  if (butterfly_vfy_cmd_sent(pgm, "write block") < 0)
-      return -1;*/
   }
 
   return 0;

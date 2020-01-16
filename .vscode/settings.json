@@ -30,4 +30,15 @@
         "limits.h": "c",
         "libavrdude.h": "c"
     },
+	"[makefile]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false,
+		"editor.formatOnSave": false,
+		"editor.formatOnPaste": false
+    },
+    "files.exclude": {
+        "**/*.lo": true,
+        "**/*.o": true
+    }
 }

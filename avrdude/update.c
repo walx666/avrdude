@@ -308,7 +308,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
     if (quell_progress < 2) {
       avrdude_message(MSG_INFO, "%s: writing %s (%d bytes):\n",
             progname, mem->desc, size);
-	  }
+    }
 
     if (!(flags & UF_NOWRITE)) {
       report_progress(0,1,"Writing");

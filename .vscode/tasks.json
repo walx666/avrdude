@@ -12,10 +12,11 @@
         }
     },
     "tasks": [
-        {
+        { // make
             "label": "make",
             "type": "shell",
-            "command": "make",
+            "group": "build",
+            "command": "makedir",
             "options": {
                 "shell": {
                     "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
@@ -26,10 +27,6 @@
                     ]
                 }
             },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
             "problemMatcher": {
                 "base": "$gcc",
                 "fileLocation": [
@@ -38,9 +35,10 @@
                 ]
             },
         },
-        {
+        { // clean 
             "label": "clean",
             "type": "shell",
+            "group": "build",
             "command": "clean",
             "options": {
                 "shell": {
@@ -56,6 +54,7 @@
         {
             "label": "configure",
             "type": "shell",
+            "group": "build",
             "command": "configure",
             "options": {
                 "shell": {
@@ -71,6 +70,7 @@
         {
             "label": "bootstrap",
             "type": "shell",
+            "group": "build",
             "command": "bootstrap",
             "options": {
                 "shell": {
@@ -86,6 +86,7 @@
         {
             "label": "strip",
             "type": "shell",
+            "group": "build",
             "command": "strip",
             "options": {
                 "shell": {
