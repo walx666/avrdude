@@ -31,7 +31,7 @@ config.log
 config.status
 config.sub
 avrdude
-avrdude.exe
+#avrdude.exe
 *.o
 .deps/*
 *.bak

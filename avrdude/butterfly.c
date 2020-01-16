@@ -730,9 +730,17 @@ static int butterfly_paged_write(PROGRAMMER *pgm, AVRPART *p, AVRMEM *m,
   if (strcmp(m->desc, "applcation") && strcmp(m->desc, "flash") && strcmp(m->desc, "eeprom") && strncmp(m->desc, "xe", 2))
     return -2;
 
-  if (m->desc[0] == 'e')
-    wr_size = 1;
-//    wr_size = blocksize = 1; /* Write to eeprom single bytes only */
+  if (m->desc[0] == 'e') 
+  {
+    wr_size = 1; // wr_size = blocksize = 1; /* Write to eeprom single bytes only */
+
+/*    avrdude_message(MSG_INFO, "\nbutterfly_paged_write: addr=%d blocksize=%d n_bytes=%d page_size=%d\n",blocksize,addr,n_bytes,page_size);
+
+    if (n_bytes < page_size) 
+    {
+      return(butterfly_write_byte(pgm,p,m,addr/wr_size,m->buf[addr]));
+    } */
+  }
 
   if (m->desc[0] == 'x')
     wr_size = 1;
