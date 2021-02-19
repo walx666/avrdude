@@ -7,7 +7,6 @@ config_gram.c
 config_gram.h
 .cvsignore
 .depend
-.deps
 INSTALL
 Makefile.in
 Makefile
@@ -33,7 +32,6 @@ config.sub
 #avrdude
 #avrdude.exe
 *.o
-.deps/*
 *.bak
 *.lo
 *.db
@@ -48,15 +46,17 @@ compile_flags.txt
 *.bin
 buf
 
-avrdude/go
-avrdude/install-sh
-avrdude/libtool
-avrdude/ltmain.sh
-avrdude/mdate.sh
-avrdude/ylwrap
-avrdude/doc/mdate-sh
-avrdude/doc/texinfo.tex
-avrdude/m4/*
-avrdude/windows/loaddrv.exe
+src/go
+src/.deps/
+src/.libs/
+src/install-sh
+src/libtool
+src/ltmain.sh
+src/mdate.sh
+src/ylwrap
+src/doc/mdate-sh
+src/doc/texinfo.tex
+src/m4/*
+src/windows/loaddrv.exe
 
-/debug.log
+debug.log

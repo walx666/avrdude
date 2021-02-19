@@ -8,7 +8,7 @@
         "env": {
             "CHERE_INVOKING": "1",
             "MSYSTEM": "MINGW32",
-            "PROJECTPATH": "/c/Users/alexanderw.SCHALLER/Source/avrdude/walx/avrdude",
+            "PROJECTPATH": "${workspaceFolder}/src",
         }
     },
     "tasks": [
@@ -31,8 +31,8 @@
                 "base": "$gcc",
                 "fileLocation": [
                     "relative",
-                    "${workspaceRoot}"
-                ]
+                    "${workspaceFolder}/src"
+                ],
             },
         },
         { // clean 
@@ -51,7 +51,7 @@
                 }
             },
         },
-        {
+        { // configure
             "label": "configure",
             "type": "shell",
             "group": "build",
@@ -67,21 +67,34 @@
                 }
             },
         },
-        {
+        { // bootstrap
             "label": "bootstrap",
             "type": "shell",
             "group": "build",
             "command": "bootstrap",
-            "options": {
-                "shell": {
-                    "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
-                    "args": [
-                        "--login",
-                        "-c",
-                        "./bootstrap",
-                    ]
-                }
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C:\\MinGW\\msys\\1.0\\bin\\bash.exe",
+                        "args": [
+                            "--login",
+                            "-c",
+                            "./bootstrap",
+                        ]
+                    }
+                },
             },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "bash",
+                        "args": [
+                            "${workspaceFolder}/src/bootstrap"
+                        ]
+                    }
+                },
+            },
+            "problemMatcher": [],
         },
         {
             "label": "strip",
@@ -94,7 +107,7 @@
                     "args": [
                         "--login",
                         "-c",
-                        "strip.exe $PROJECTPATH/avrdude.exe",
+                        "strip.exe ${workspaceFolder}/avrdude.exe",
                     ]
                 }
             },
