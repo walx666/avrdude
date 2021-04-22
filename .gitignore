@@ -74,4 +74,6 @@ src/external/libusb/Release/
 
 src/windows/.deps/
 
+build/**
+
 debug.log
