@@ -19,7 +19,11 @@
 
 /* $Id: pgm.c 976 2011-08-23 21:03:36Z joerg_wunsch $ */
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

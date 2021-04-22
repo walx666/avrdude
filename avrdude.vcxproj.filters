@@ -23,365 +23,374 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="arduino.c">
+    <ClCompile Include="src\msvc\getopt.c">
+      <Filter>5 msvc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msvc\gettimeofday.c">
+      <Filter>5 msvc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msvc\pthread.cpp">
+      <Filter>5 msvc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msvc\semaphore.cpp">
+      <Filter>5 msvc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msvc\unistd.cpp">
+      <Filter>5 msvc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msvc\usb_com_helper.cpp">
+      <Filter>5 msvc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avr910.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="avr.c">
+    <ClCompile Include="src\avrftdi.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="avr910.c">
+    <ClCompile Include="src\avrftdi_tpi.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="avrftdi.c">
+    <ClCompile Include="src\avrpart.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="avrftdi_tpi.c">
+    <ClCompile Include="src\bitbang.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="avrpart.c">
+    <ClCompile Include="src\buspirate.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bitbang.c">
+    <ClCompile Include="src\butterfly.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="buspirate.c">
+    <ClCompile Include="src\config.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="butterfly.c">
+    <ClCompile Include="src\confwin.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="config.c">
+    <ClCompile Include="src\crc16.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="confwin.c">
+    <ClCompile Include="src\dfu.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crc16.c">
+    <ClCompile Include="src\fileio.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dfu.c">
+    <ClCompile Include="src\flip1.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fileio.c">
+    <ClCompile Include="src\flip2.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="flip1.c">
+    <ClCompile Include="src\ft245r.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="flip2.c">
+    <ClCompile Include="src\jtag3.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ft245r.c">
+    <ClCompile Include="src\jtagmkI.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jtag3.c">
+    <ClCompile Include="src\jtagmkII.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jtagmkI.c">
+    <ClCompile Include="src\linuxgpio.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jtagmkII.c">
+    <ClCompile Include="src\linuxspi.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="linuxgpio.c">
+    <ClCompile Include="src\lists.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lists.c">
+    <ClCompile Include="src\main.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.c">
+    <ClCompile Include="src\micronucleus.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="micronucleus.c">
+    <ClCompile Include="src\par.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="par.c">
+    <ClCompile Include="src\pgm.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pgm.c">
+    <ClCompile Include="src\pgm_type.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pgm_type.c">
+    <ClCompile Include="src\pickit2.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pickit2.c">
+    <ClCompile Include="src\pindefs.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pindefs.c">
+    <ClCompile Include="src\ppi.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ppi.c">
+    <ClCompile Include="src\ppiwin.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ppiwin.c">
+    <ClCompile Include="src\safemode.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="safemode.c">
+    <ClCompile Include="src\ser_avrdoper.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ser_avrdoper.c">
+    <ClCompile Include="src\ser_posix.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ser_posix.c">
+    <ClCompile Include="src\ser_win32.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ser_win32.c">
+    <ClCompile Include="src\serbb_posix.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="serbb_posix.c">
+    <ClCompile Include="src\serbb_win32.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="serbb_win32.c">
+    <ClCompile Include="src\stk500.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stk500.c">
+    <ClCompile Include="src\stk500generic.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stk500generic.c">
+    <ClCompile Include="src\stk500v2.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stk500v2.c">
+    <ClCompile Include="src\teensy.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="teensy.c">
+    <ClCompile Include="src\term.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="term.c">
+    <ClCompile Include="src\update.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="update.c">
+    <ClCompile Include="src\usb_hidapi.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="usb_hidapi.c">
+    <ClCompile Include="src\usb_libusb.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="usb_libusb.c">
+    <ClCompile Include="src\usbasp.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="usbasp.c">
+    <ClCompile Include="src\usbtiny.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="usbtiny.c">
+    <ClCompile Include="src\wiring.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wiring.c">
+    <ClCompile Include="src\arduino.c">
       <Filter>1 Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="msvc\generated\config_gram.c">
+    <ClCompile Include="src\avr.c">
+      <Filter>1 Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\msvc\generated\config_gram.c">
       <Filter>3 Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="msvc\generated\lexer.c">
+    <ClCompile Include="src\msvc\generated\lexer.c">
       <Filter>3 Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="msvc\getopt.c">
-      <Filter>5 msvc</Filter>
-    </ClCompile>
-    <ClCompile Include="msvc\gettimeofday.c">
-      <Filter>5 msvc</Filter>
-    </ClCompile>
-    <ClCompile Include="msvc\unistd.cpp">
-      <Filter>5 msvc</Filter>
-    </ClCompile>
-    <ClCompile Include="msvc\usb_com_helper.cpp">
-      <Filter>5 msvc</Filter>
-    </ClCompile>
-    <ClCompile Include="msvc\pthread.cpp">
-      <Filter>5 msvc</Filter>
-    </ClCompile>
-    <ClCompile Include="msvc\semaphore.cpp">
-      <Filter>5 msvc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="arduino.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="avr910.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="avrdude.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="avrftdi.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="avrftdi_private.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="avrftdi_tpi.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bitbang.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="buspirate.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="butterfly.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="crc16.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dfu.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="flip1.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="flip2.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="freebsd_ppi.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ft245r.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jtag3.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jtag3_private.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jtagmkI.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jtagmkI_private.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jtagmkII.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jtagmkII_private.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libavrdude.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="linux_ppdev.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="linuxgpio.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="micronucleus.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="my_ddk_hidsdi.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="par.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pickit2.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ppi.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ser_win32.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serbb.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="solaris_ecpp.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stk500.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stk500_private.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stk500generic.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stk500v2.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stk500v2_private.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="teensy.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="term.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tpi.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="usbasp.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="usbdevs.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="usbtiny.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wiring.h">
-      <Filter>2 Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="msvc\generated\ac_cfg.h">
-      <Filter>3 Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="msvc\generated\config_gram.h">
-      <Filter>3 Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="msvc\getopt.h">
-      <Filter>5 msvc</Filter>
-    </ClInclude>
-    <ClInclude Include="msvc\unistd.h">
-      <Filter>5 msvc</Filter>
-    </ClInclude>
-    <ClInclude Include="msvc\sys\time.h">
+    <ClInclude Include="src\msvc\sys\time.h">
       <Filter>5 msvc\sys</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\msvc_compat.h">
+    <ClInclude Include="src\msvc\version.h">
+      <Filter>4 Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msvc\getopt.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\usb_com_helper.h">
+    <ClInclude Include="src\msvc\IntegerHandleMap.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\usb_com_locator.h">
+    <ClInclude Include="src\msvc\msvc_compat.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\pthread.h">
+    <ClInclude Include="src\msvc\pthread.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\semaphore.h">
+    <ClInclude Include="src\msvc\ReaderWriterLock.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\ReaderWriterLock.h">
+    <ClInclude Include="src\msvc\semaphore.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\IntegerHandleMap.h">
+    <ClInclude Include="src\msvc\unistd.h">
       <Filter>5 msvc</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\resource.h">
+    <ClInclude Include="src\msvc\usb_com_helper.h">
+      <Filter>5 msvc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msvc\usb_com_locator.h">
+      <Filter>5 msvc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\avr910.h">
       <Filter>2 Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="msvc\version.h">
-      <Filter>4 Resource Files</Filter>
+    <ClInclude Include="src\avrdude.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\avrftdi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\avrftdi_private.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\avrftdi_tpi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bitbang.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buspirate.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\butterfly.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_gram.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crc16.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dfu.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\flip1.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\flip2.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\freebsd_ppi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ft245r.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jtag3.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jtag3_private.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jtagmkI.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jtagmkI_private.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jtagmkII.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jtagmkII_private.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libavrdude.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\linux_ppdev.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\linuxgpio.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\linuxspi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\micronucleus.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\my_ddk_hidsdi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\par.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pickit2.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ppi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serbb.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solaris_ecpp.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stk500.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stk500_private.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stk500generic.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stk500v2.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stk500v2_private.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\teensy.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\term.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tpi.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\usbasp.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\usbdevs.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\usbtiny.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wiring.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arduino.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ac_cfg_win.h">
+      <Filter>2 Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msvc\generated\config_gram.h">
+      <Filter>3 Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msvc\generated\ac_cfg.h">
+      <Filter>3 Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="msvc\avrdude.rc">
+    <None Include="src\msvc\res\resource.rc2">
       <Filter>4 Resource Files</Filter>
-    </ResourceCompile>
+    </None>
+    <None Include="src\msvc\res\version.rc2">
+      <Filter>4 Resource Files</Filter>
+    </None>
+    <None Include="src\msvc\generated\avrdude.conf">
+      <Filter>3 Generated Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="msvc\res\resource.rc2">
+    <ResourceCompile Include="src\msvc\avrdude.rc">
       <Filter>4 Resource Files</Filter>
-    </None>
-    <None Include="msvc\res\version.rc2">
-      <Filter>4 Resource Files</Filter>
-    </None>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -27,11 +27,11 @@
 #endif
 
 #ifndef VER_COMPANYNAME_STR
-#define VER_COMPANYNAME_STR         "Marius Greuel"
+#define VER_COMPANYNAME_STR         "Alexander Weber"
 #endif
 
 #ifndef VER_FILEDESCRIPTION_STR
-#define VER_FILEDESCRIPTION_STR     "AVRDUDE"
+#define VER_FILEDESCRIPTION_STR     "avrdude-hmc"
 #endif
 
 #ifndef VER_PRODUCTNAME_STR
@@ -43,7 +43,7 @@
 #endif
 
 #ifndef VER_LEGALCOPYRIGHT_STR
-#define VER_LEGALCOPYRIGHT_STR      "\251 2020 The AVRDUDE authors."
+#define VER_LEGALCOPYRIGHT_STR      "\251 2021 The AVRDUDE authors."
 #endif
 
 #ifndef VER_ORIGINALFILENAME_STR

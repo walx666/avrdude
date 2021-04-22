@@ -18,7 +18,11 @@
 
 /* $Id$ */
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -617,7 +621,7 @@ int flip2_read_memory(struct dfu_dev *dfu,
       return -1;
     }
 
-    ptr += read_size;
+    ptr = (char*)ptr + read_size;
     addr += read_size;
     size -= read_size;
   }
@@ -680,7 +684,7 @@ int flip2_write_memory(struct dfu_dev *dfu,
       return -1;
     }
 
-    ptr += write_size;
+    ptr = (const char*)ptr + write_size;
     addr += write_size;
     size -= write_size;
   }

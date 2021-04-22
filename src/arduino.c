@@ -24,8 +24,11 @@
  * The Arduino programmer is mostly a STK500v1, just the signature bytes
  * are read differently.
  */
-
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>

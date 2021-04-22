@@ -30,9 +30,14 @@ reg = register as defined in an enum in ppi.h. This must be converted
 */
 
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
-#if defined (WIN32NATIVE)
+
+#if defined (WIN32NATIVE) && defined (HAVE_PARPORT)
 
 #include <errno.h>
 #include <fcntl.h>

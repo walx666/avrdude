@@ -25,7 +25,11 @@
  * protocol described in application note avr910.
  */
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

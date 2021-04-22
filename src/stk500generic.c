@@ -26,7 +26,11 @@
  * divert to the actual programmer implementation if successful.
  */
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>

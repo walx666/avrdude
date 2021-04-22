@@ -43,7 +43,11 @@
  * MOSI - AUX (6)
  */
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,7 +102,7 @@
 // win32native only:
 #if (defined(WIN32NATIVE) && defined(HAVE_LIBHID))
 static HANDLE open_hid(unsigned short vid, unsigned short pid);
-const char *usb_strerror()
+static const char *usb_strerror()
 {
     return "";
 }

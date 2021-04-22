@@ -2,9 +2,10 @@
 *.patch
 y.output
 y.tab.h
-lexer.c
-config_gram.c
-config_gram.h
+#ac_cfg.h
+src/lexer.c
+src/config_gram.c
+src/config_gram.h
 .cvsignore
 .depend
 INSTALL
@@ -21,7 +22,6 @@ missing
 mkinstalldirs
 stamp-h.in
 stamp-h1
-ac_cfg.h
 #avrdude.conf
 avrdude.conf.tmp
 avrdude.spec
@@ -45,6 +45,8 @@ compile_flags.txt
 *.pnps
 *.bin
 buf
+
+.vs/
 
 src/go
 src/.deps/

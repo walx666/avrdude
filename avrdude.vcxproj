@@ -84,7 +84,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;src;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
@@ -99,7 +99,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;src;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
@@ -114,26 +114,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>      <WarningLevel>Level3</WarningLevel>
-      <ConformanceMode>true</ConformanceMode>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <ResourceCompile>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;src;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <ConformanceMode>true</ConformanceMode>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -144,7 +125,27 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;src;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>true</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -172,11 +173,18 @@
     <ClCompile Include="src\jtagmkI.c" />
     <ClCompile Include="src\jtagmkII.c" />
     <ClCompile Include="src\linuxgpio.c" />
+    <ClCompile Include="src\linuxspi.c" />
     <ClCompile Include="src\lists.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\micronucleus.c" />
+    <ClCompile Include="src\msvc\generated\config_gram.c" />
+    <ClCompile Include="src\msvc\generated\lexer.c" />
     <ClCompile Include="src\msvc\pthread.cpp" />
     <ClCompile Include="src\msvc\semaphore.cpp" />
+    <ClCompile Include="src\msvc\getopt.c" />
+    <ClCompile Include="src\msvc\gettimeofday.c" />
+    <ClCompile Include="src\msvc\unistd.cpp" />
+    <ClCompile Include="src\msvc\usb_com_helper.cpp" />
     <ClCompile Include="src\par.c" />
     <ClCompile Include="src\pgm.c" />
     <ClCompile Include="src\pgm_type.c" />
@@ -201,19 +209,9 @@
     <ClCompile Include="src\usb_hidapi.c" />
     <ClCompile Include="src\usb_libusb.c" />
     <ClCompile Include="src\wiring.c" />
-    <ClCompile Include="src\msvc\generated\config_gram.c" />
-    <ClCompile Include="src\msvc\generated\lexer.c">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="src\msvc\getopt.c" />
-    <ClCompile Include="src\msvc\gettimeofday.c" />
-    <ClCompile Include="src\msvc\unistd.cpp" />
-    <ClCompile Include="src\msvc\usb_com_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ac_cfg_win.h" />
     <ClInclude Include="src\arduino.h" />
     <ClInclude Include="src\avr910.h" />
     <ClInclude Include="src\avrdude.h" />
@@ -224,6 +222,7 @@
     <ClInclude Include="src\buspirate.h" />
     <ClInclude Include="src\butterfly.h" />
     <ClInclude Include="src\config.h" />
+    <ClInclude Include="src\config_gram.h" />
     <ClInclude Include="src\crc16.h" />
     <ClInclude Include="src\dfu.h" />
     <ClInclude Include="src\flip1.h" />
@@ -238,20 +237,27 @@
     <ClInclude Include="src\jtagmkI_private.h" />
     <ClInclude Include="src\libavrdude.h" />
     <ClInclude Include="src\linuxgpio.h" />
+    <ClInclude Include="src\linuxspi.h" />
     <ClInclude Include="src\linux_ppdev.h" />
     <ClInclude Include="src\micronucleus.h" />
+    <ClInclude Include="src\msvc\generated\ac_cfg.h" />
+    <ClInclude Include="src\msvc\generated\config_gram.h" />
     <ClInclude Include="src\msvc\IntegerHandleMap.h" />
     <ClInclude Include="src\msvc\pthread.h" />
     <ClInclude Include="src\msvc\ReaderWriterLock.h" />
-    <ClInclude Include="src\msvc\resource.h" />
     <ClInclude Include="src\msvc\semaphore.h" />
     <ClInclude Include="src\msvc\version.h" />
+    <ClInclude Include="src\msvc\getopt.h" />
+    <ClInclude Include="src\msvc\msvc_compat.h" />
+    <ClInclude Include="src\msvc\sys\time.h" />
+    <ClInclude Include="src\msvc\unistd.h" />
+    <ClInclude Include="src\msvc\usb_com_helper.h" />
+    <ClInclude Include="src\msvc\usb_com_locator.h" />
     <ClInclude Include="src\my_ddk_hidsdi.h" />
     <ClInclude Include="src\par.h" />
     <ClInclude Include="src\pickit2.h" />
     <ClInclude Include="src\ppi.h" />
     <ClInclude Include="src\serbb.h" />
-    <ClInclude Include="src\ser_win32.h" />
     <ClInclude Include="src\solaris_ecpp.h" />
     <ClInclude Include="src\stk500.h" />
     <ClInclude Include="src\stk500generic.h" />
@@ -265,14 +271,6 @@
     <ClInclude Include="src\usbdevs.h" />
     <ClInclude Include="src\usbtiny.h" />
     <ClInclude Include="src\wiring.h" />
-    <ClInclude Include="src\msvc\generated\ac_cfg.h" />
-    <ClInclude Include="src\msvc\generated\config_gram.h" />
-    <ClInclude Include="src\msvc\getopt.h" />
-    <ClInclude Include="src\msvc\msvc_compat.h" />
-    <ClInclude Include="src\msvc\sys\time.h" />
-    <ClInclude Include="src\msvc\unistd.h" />
-    <ClInclude Include="src\msvc\usb_com_helper.h" />
-    <ClInclude Include="src\msvc\usb_com_locator.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="src\external\libelf\libelf.vcxproj">
@@ -292,6 +290,7 @@
     <ResourceCompile Include="src\msvc\avrdude.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\msvc\generated\avrdude.conf" />
     <None Include="src\msvc\res\resource.rc2">
       <FileType>Text</FileType>
     </None>

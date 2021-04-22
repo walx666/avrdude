@@ -23,8 +23,11 @@
  * Review code, rebase to latest trunk, add linux/gpio.h support, Ralf Ramsauer 2018-09-07
  */
 
-
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include "avrdude.h"
 #include "libavrdude.h"

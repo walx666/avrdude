@@ -35,7 +35,11 @@
  *
  */
 
+#ifdef _MSC_VER 
+#include "ac_cfg_win.h"
+#else
 #include "ac_cfg.h"
+#endif
 
 #include <math.h>
 #include <stdio.h>
