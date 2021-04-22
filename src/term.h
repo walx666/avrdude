@@ -27,9 +27,9 @@
 extern "C" {
 #endif
 
-int hexdump_buf( FILE * f, int startaddr, unsigned char * buf, int len);
-int hexdump_line(char * buffer, unsigned char * p, int n, int pad);
-int chardump_line(char * buffer, unsigned char * p, int n, int pad);
+static int hexdump_buf( FILE * f, int startaddr, unsigned char * buf, int len);
+static int hexdump_line(char * buffer, unsigned char * p, int n, int pad);
+static int chardump_line(char * buffer, unsigned char * p, int n, int pad);
 
 int terminal_mode(PROGRAMMER * pgm, struct avrpart * p);
 char * terminal_get_input(const char *prompt);
