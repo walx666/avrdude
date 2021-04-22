@@ -12,11 +12,15 @@
 # include <libftdi1/ftdi.h>
 # undef HAVE_LIBFTDI_TYPE_232H
 # define HAVE_LIBFTDI_TYPE_232H 1
-#elif defined(HAVE_LIBFTDI) && defined(HAVE_USB_H)
+#elif defined(HAVE_LIBFTDI) && (defined(HAVE_USB_H) || defined(_MSC_VER))
 /* ftdi.h includes usb.h */
 #include <ftdi.h>
 #else 
+#ifdef _MSC_VER
+#pragma message("No libftdi or libusb support. Install libftdi1/libusb-1.0 or libftdi/libusb and run configure/make again.")
+#else
 #warning No libftdi or libusb support. Install libftdi1/libusb-1.0 or libftdi/libusb and run configure/make again.
+#endif
 #define DO_NOT_BUILD_AVRFTDI
 #endif
 

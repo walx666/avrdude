@@ -11,8 +11,8 @@ extern "C" {
  */
 
 extern unsigned short crcsum(const unsigned char* message,
-			    unsigned long length,
-			    unsigned short crc);
+			     unsigned long length,
+			     unsigned short crc);
 /*
  * Verify that the last two bytes is a (LSB first) valid CRC of the
  * message.

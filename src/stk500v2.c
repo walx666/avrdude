@@ -348,6 +348,9 @@ static void stk500v2_jtagmkII_teardown(PROGRAMMER * pgm)
 {
   void *mycookie;
 
+  free(PDATA(pgm)->flash_pagecache);
+  free(PDATA(pgm)->eeprom_pagecache);
+
   mycookie = pgm->cookie;
   pgm->cookie = PDATA(pgm)->chained_pdata;
   jtagmkII_teardown(pgm);
@@ -570,6 +573,7 @@ static int stk500v2_jtagmkII_recv(PROGRAMMER * pgm, unsigned char *msg,
     return -1;
   }
   memcpy(msg, jtagmsg + 1, rv - 1);
+  free(jtagmsg);
   return rv;
 }
 
@@ -2819,9 +2823,15 @@ static int stk500v2_set_sck_period_mk2(PROGRAMMER * pgm, double v)
 {
   int i;
 
-  for (i = 0; i < sizeof(avrispmkIIfreqs); i++) {
+  for (i = 0; i < sizeof(avrispmkIIfreqs) / sizeof(avrispmkIIfreqs[0]); i++) {
     if (1 / avrispmkIIfreqs[i] >= v)
       break;
+  }
+
+  if (i >= sizeof(avrispmkIIfreqs) / sizeof(avrispmkIIfreqs[0])) {
+    avrdude_message(MSG_INFO, "%s: stk500v2_set_sck_period_mk2(): "
+                    "invalid SCK period: %g\n", progname, v);
+    return -1;
   }
 
   avrdude_message(MSG_NOTICE2, "Using p = %.2f us for SCK (param = %d)\n",
@@ -3148,8 +3158,9 @@ static const char *stk600_get_cardname(const struct carddata *table,
 
 static void stk500v2_display(PROGRAMMER * pgm, const char * p)
 {
-  unsigned char maj, min, hdw, topcard, maj_s1, min_s1, maj_s2, min_s2;
-  unsigned int rev;
+  unsigned char maj = 0, min = 0, hdw = 0, topcard = 0,
+                maj_s1 = 0, min_s1 = 0, maj_s2 = 0, min_s2 = 0;
+  unsigned int rev = 0;
   const char *topcard_name, *pgmname;
 
   switch (PDATA(pgm)->pgmtype) {

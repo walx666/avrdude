@@ -46,6 +46,8 @@ EXTRA_DIST   = \
 	ChangeLog-2015 \
 	ChangeLog-2016 \
 	ChangeLog-2017 \
+	ChangeLog-2018 \
+	ChangeLog-2019 \
 	avrdude.1 \
 	avrdude.spec \
 	bootstrap
@@ -149,8 +151,12 @@ libavrdude_a_SOURCES = \
 	libavrdude.h \
 	linuxgpio.c \
 	linuxgpio.h \
+	linuxspi.c \
+	linuxspi.h \
 	linux_ppdev.h \
 	lists.c \
+	micronucleus.c \
+	micronucleus.h \
 	my_ddk_hidsdi.h \
 	par.c \
 	par.h \
@@ -178,6 +184,8 @@ libavrdude_a_SOURCES = \
 	stk500v2_private.h \
 	stk500generic.c \
 	stk500generic.h \
+	teensy.c \
+	teensy.h \
 	tpi.h \
 	usbasp.c \
 	usbasp.h \

@@ -49,6 +49,8 @@ buf
 src/go
 src/.deps/
 src/.libs/
+src/configure~
+src/configure.lineno
 src/install-sh
 src/libtool
 src/ltmain.sh
@@ -58,5 +60,16 @@ src/doc/mdate-sh
 src/doc/texinfo.tex
 src/m4/*
 src/windows/loaddrv.exe
+
+src/external/libelf/Debug/
+src/external/libelf/Release/
+src/external/libftdi1/Debug/
+src/external/libftdi1/Release/
+src/external/libhidapi/Debug/
+src/external/libhidapi/Release/
+src/external/libusb/Debug/
+src/external/libusb/Release/
+
+src/windows/.deps/
 
 debug.log

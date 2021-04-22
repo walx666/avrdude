@@ -95,7 +95,7 @@ static int cmd_verbose (PROGRAMMER * pgm, struct avrpart * p,
 		      int argc, char *argv[]);
 
 struct command cmd[] = {
-  { "crc", cmd_crc, "crc of memory : %s <memtype> <addr> <N-Bytes>" },
+  { "crc",   cmd_crc,   "crc of memory : %s <memtype> <addr> <N-Bytes>" },
   { "dump",  cmd_dump,  "dump memory  : %s <memtype> <addr> <N-Bytes>" },
   { "read",  cmd_dump,  "alias for dump" },
   { "write", cmd_write, "write memory : %s <memtype> <addr> <b1> <b2> ... <bN>" },
@@ -150,8 +150,8 @@ static int nexttok(char * buf, char ** tok, char ** next)
   return 0;
 }
 
-// static int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
-int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
+//int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
+static int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
 {
   char * hexdata = "0123456789abcdef";
   char * b;
@@ -182,8 +182,8 @@ int hexdump_line(char * buffer, unsigned char * p, int n, int pad)
   return 1;
 }
 
-//static int chardump_line(char * buffer, unsigned char * p, int n, int pad)
-int chardump_line(char * buffer, unsigned char * p, int n, int pad)
+//int chardump_line(char * buffer, unsigned char * p, int n, int pad)
+static int chardump_line(char * buffer, unsigned char * p, int n, int pad)
 {
   int i;
   char b [ 128 ];
@@ -205,8 +205,8 @@ int chardump_line(char * buffer, unsigned char * p, int n, int pad)
   return 0;
 }
 
-// static int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
- int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
+//int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
+static int hexdump_buf(FILE * f, int startaddr, unsigned char * buf, int len)
 {
   int addr;
   int n;
@@ -233,7 +233,7 @@ int chardump_line(char * buffer, unsigned char * p, int n, int pad)
 
 
 static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
-		    int argc, char * argv[])
+    int argc, char * argv[])
 {
   static char prevmem[128] = {0};
   char * e;
@@ -336,7 +336,7 @@ static int cmd_crc(PROGRAMMER * pgm, struct avrpart * p,
 
 
 static int cmd_dump(PROGRAMMER * pgm, struct avrpart * p,
-		    int argc, char * argv[])
+    int argc, char * argv[])
 {
   static char prevmem[128] = {0};
   char * e;
@@ -449,7 +449,7 @@ static int cmd_write(PROGRAMMER * pgm, struct avrpart * p,
 
   if (argc < 4) {
     avrdude_message(MSG_INFO, "Usage: write <memtype> <addr> <byte1> "
-            "<byte2> ... byteN>\n");
+            "<byte2> ... <byteN>\n");
     return -1;
   }
 
@@ -731,7 +731,7 @@ static int cmd_fosc(PROGRAMMER * pgm, struct avrpart * p,
     return -2;
   }
   if ((rc = pgm->set_fosc(pgm, v)) != 0) {
-    avrdude_message(MSG_INFO, "%s (fosc): failed to set oscillator_frequency (rc = %d)\n",
+    avrdude_message(MSG_INFO, "%s (fosc): failed to set oscillator frequency (rc = %d)\n",
 	    progname, rc);
     return -3;
   }

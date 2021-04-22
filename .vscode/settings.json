@@ -28,7 +28,8 @@
     },
     "files.associations": {
         "limits.h": "c",
-        "libavrdude.h": "c"
+        "libavrdude.h": "c",
+        "ac_cfg.h": "c"
     },
 	"[makefile]": {
 		"editor.tabSize": 4,

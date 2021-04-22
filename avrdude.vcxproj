@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{718DDC4C-324E-485F-BE18-2D211659A2F4}</ProjectGuid>
+    <RootNamespace>avrdude</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>true</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32NATIVE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;LOG_APPNAME="avrdude";NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src\msvc;src\msvc\generated;.src\;src\external\libelf\include;src\external\libusb\include;src\external\libhidapi\include;src\external\libftdi1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <ConformanceMode>true</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\arduino.c" />
+    <ClCompile Include="src\avr.c" />
+    <ClCompile Include="src\avr910.c" />
+    <ClCompile Include="src\avrftdi.c" />
+    <ClCompile Include="src\avrftdi_tpi.c" />
+    <ClCompile Include="src\avrpart.c" />
+    <ClCompile Include="src\bitbang.c" />
+    <ClCompile Include="src\buspirate.c" />
+    <ClCompile Include="src\butterfly.c" />
+    <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\confwin.c" />
+    <ClCompile Include="src\crc16.c" />
+    <ClCompile Include="src\dfu.c" />
+    <ClCompile Include="src\fileio.c" />
+    <ClCompile Include="src\flip1.c" />
+    <ClCompile Include="src\flip2.c" />
+    <ClCompile Include="src\ft245r.c" />
+    <ClCompile Include="src\jtag3.c" />
+    <ClCompile Include="src\jtagmkI.c" />
+    <ClCompile Include="src\jtagmkII.c" />
+    <ClCompile Include="src\linuxgpio.c" />
+    <ClCompile Include="src\lists.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\micronucleus.c" />
+    <ClCompile Include="src\msvc\pthread.cpp" />
+    <ClCompile Include="src\msvc\semaphore.cpp" />
+    <ClCompile Include="src\par.c" />
+    <ClCompile Include="src\pgm.c" />
+    <ClCompile Include="src\pgm_type.c" />
+    <ClCompile Include="src\pickit2.c" />
+    <ClCompile Include="src\pindefs.c" />
+    <ClCompile Include="src\ppi.c" />
+    <ClCompile Include="src\ppiwin.c" />
+    <ClCompile Include="src\safemode.c" />
+    <ClCompile Include="src\serbb_posix.c" />
+    <ClCompile Include="src\serbb_win32.c" />
+    <ClCompile Include="src\ser_avrdoper.c" />
+    <ClCompile Include="src\ser_posix.c" />
+    <ClCompile Include="src\ser_win32.c" />
+    <ClCompile Include="src\stk500.c" />
+    <ClCompile Include="src\stk500generic.c" />
+    <ClCompile Include="src\stk500v2.c" />
+    <ClCompile Include="src\teensy.c" />
+    <ClCompile Include="src\term.c" />
+    <ClCompile Include="src\update.c" />
+    <ClCompile Include="src\usbasp.c" />
+    <ClCompile Include="src\usbtiny.c" />
+    <ClCompile Include="src\usb_hidapi.c" />
+    <ClCompile Include="src\usb_libusb.c" />
+    <ClCompile Include="src\wiring.c" />
+    <ClCompile Include="src\msvc\generated\config_gram.c" />
+    <ClCompile Include="src\msvc\generated\lexer.c">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CONFIG_DIR=".";__STDC_VERSION__=199901L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="src\msvc\getopt.c" />
+    <ClCompile Include="src\msvc\gettimeofday.c" />
+    <ClCompile Include="src\msvc\unistd.cpp" />
+    <ClCompile Include="src\msvc\usb_com_helper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\arduino.h" />
+    <ClInclude Include="src\avr910.h" />
+    <ClInclude Include="src\avrdude.h" />
+    <ClInclude Include="src\avrftdi.h" />
+    <ClInclude Include="src\avrftdi_private.h" />
+    <ClInclude Include="src\avrftdi_tpi.h" />
+    <ClInclude Include="src\bitbang.h" />
+    <ClInclude Include="src\buspirate.h" />
+    <ClInclude Include="src\butterfly.h" />
+    <ClInclude Include="src\config.h" />
+    <ClInclude Include="src\crc16.h" />
+    <ClInclude Include="src\dfu.h" />
+    <ClInclude Include="src\flip1.h" />
+    <ClInclude Include="src\flip2.h" />
+    <ClInclude Include="src\freebsd_ppi.h" />
+    <ClInclude Include="src\ft245r.h" />
+    <ClInclude Include="src\jtag3.h" />
+    <ClInclude Include="src\jtag3_private.h" />
+    <ClInclude Include="src\jtagmkI.h" />
+    <ClInclude Include="src\jtagmkII.h" />
+    <ClInclude Include="src\jtagmkII_private.h" />
+    <ClInclude Include="src\jtagmkI_private.h" />
+    <ClInclude Include="src\libavrdude.h" />
+    <ClInclude Include="src\linuxgpio.h" />
+    <ClInclude Include="src\linux_ppdev.h" />
+    <ClInclude Include="src\micronucleus.h" />
+    <ClInclude Include="src\msvc\IntegerHandleMap.h" />
+    <ClInclude Include="src\msvc\pthread.h" />
+    <ClInclude Include="src\msvc\ReaderWriterLock.h" />
+    <ClInclude Include="src\msvc\resource.h" />
+    <ClInclude Include="src\msvc\semaphore.h" />
+    <ClInclude Include="src\msvc\version.h" />
+    <ClInclude Include="src\my_ddk_hidsdi.h" />
+    <ClInclude Include="src\par.h" />
+    <ClInclude Include="src\pickit2.h" />
+    <ClInclude Include="src\ppi.h" />
+    <ClInclude Include="src\serbb.h" />
+    <ClInclude Include="src\ser_win32.h" />
+    <ClInclude Include="src\solaris_ecpp.h" />
+    <ClInclude Include="src\stk500.h" />
+    <ClInclude Include="src\stk500generic.h" />
+    <ClInclude Include="src\stk500v2.h" />
+    <ClInclude Include="src\stk500v2_private.h" />
+    <ClInclude Include="src\stk500_private.h" />
+    <ClInclude Include="src\teensy.h" />
+    <ClInclude Include="src\term.h" />
+    <ClInclude Include="src\tpi.h" />
+    <ClInclude Include="src\usbasp.h" />
+    <ClInclude Include="src\usbdevs.h" />
+    <ClInclude Include="src\usbtiny.h" />
+    <ClInclude Include="src\wiring.h" />
+    <ClInclude Include="src\msvc\generated\ac_cfg.h" />
+    <ClInclude Include="src\msvc\generated\config_gram.h" />
+    <ClInclude Include="src\msvc\getopt.h" />
+    <ClInclude Include="src\msvc\msvc_compat.h" />
+    <ClInclude Include="src\msvc\sys\time.h" />
+    <ClInclude Include="src\msvc\unistd.h" />
+    <ClInclude Include="src\msvc\usb_com_helper.h" />
+    <ClInclude Include="src\msvc\usb_com_locator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="src\external\libelf\libelf.vcxproj">
+      <Project>{a2d07885-a0d1-473b-83b2-209cd008ee8f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="src\external\libftdi1\libftdi1.vcxproj">
+      <Project>{632649ab-a351-46d4-a81f-1d6e9a819a5c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="src\external\libhidapi\libhidapi.vcxproj">
+      <Project>{17054837-6ae6-44d7-914d-9625edef4657}</Project>
+    </ProjectReference>
+    <ProjectReference Include="src\external\libusb\libusb.vcxproj">
+      <Project>{22615ec5-9dbc-4538-9c01-2cd535b3810b}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\msvc\avrdude.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\msvc\res\resource.rc2">
+      <FileType>Text</FileType>
+    </None>
+    <None Include="src\msvc\res\version.rc2">
+      <FileType>Text</FileType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

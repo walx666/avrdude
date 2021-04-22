@@ -59,7 +59,11 @@
 #if (defined(WIN32NATIVE) && defined(HAVE_LIBHID))
 #include <windows.h>
 #if defined(HAVE_DDK_HIDSDI_H)
+#ifdef _MSC_VER
+#  include <hidsdi.h>
+#else
 #  include <ddk/hidsdi.h>
+#endif
 #else
 #  include "my_ddk_hidsdi.h"
 #endif
@@ -202,10 +206,10 @@ static int pickit2_open(PROGRAMMER * pgm, char * port)
         HidD_GetProductString(PDATA(pgm)->usb_handle, buff, PGM_DESCLEN-1);
 
         // convert from wide chars, but do not overwrite trailing '\0'
-        memset(&(pgm->type), 0, PGM_DESCLEN);
+        memset(&(pgm->desc), 0, PGM_DESCLEN);
         for (i = 0; i < (PGM_DESCLEN-1) && buff[i]; i++)
         {
-            pgm->type[i] = (char)buff[i]; // TODO what about little/big endian???
+            pgm->desc[i] = (char)buff[i]; // TODO what about little/big endian???
         }
     }
 #else

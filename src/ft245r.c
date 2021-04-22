@@ -78,11 +78,15 @@
 #  include <libusb.h>
 # endif
 # include <libftdi1/ftdi.h>
-#elif defined(HAVE_LIBFTDI) && defined(HAVE_USB_H)
+#elif defined(HAVE_LIBFTDI) && (defined(HAVE_USB_H) || defined(_MSC_VER))
 /* ftdi.h includes usb.h */
 #include <ftdi.h>
 #else 
+#ifdef _MSC_VER
+#pragma message("No libftdi or libusb support. Install libftdi1/libusb-1.0 or libftdi/libusb and run configure/make again.")
+#else
 #warning No libftdi or libusb support. Install libftdi1/libusb-1.0 or libftdi/libusb and run configure/make again.
+#endif
 #define DO_NOT_BUILD_FT245R
 #endif
 
@@ -681,14 +685,22 @@ cleanup_no_usb:
 
 
 static void ft245r_close(PROGRAMMER * pgm) {
+    int retry_times = 0;
     if (handle) {
         // I think the switch to BB mode and back flushes the buffer.
         ftdi_set_bitmode(handle, 0, BITMODE_SYNCBB); // set Synchronous BitBang, all in puts
         ftdi_set_bitmode(handle, 0, BITMODE_RESET); // disable Synchronous BitBang
         ftdi_usb_close(handle);
-        ftdi_deinit (handle);
-        pthread_cancel(readerthread);
+        while(pthread_cancel(readerthread) && retry_times < 100) {
+            retry_times++;
+            usleep(100);
+        }
+        if (retry_times >= 100) {
+            avrdude_message(MSG_INFO, "Too many retry to close reader thread\n");
+        }
+
         pthread_join(readerthread, NULL);
+        ftdi_deinit (handle);
         free(handle);
         handle = NULL;
     }

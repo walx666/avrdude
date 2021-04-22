@@ -133,7 +133,7 @@ static void usage(void)
  "  -q                         Quell progress output. -q -q for less.\n"
  "  -l logfile                 Use logfile rather than stderr for diagnostics.\n"
  "  -?                         Display this usage.\n"
- "\navrdude version %s, URL: <http://savannah.nongnu.org/projects/avrdude/>\n"
+ "\navrdude version %s, URL: <https://github.com/walx666/avrdude/>\n"
           ,progname, version);
 }
 
@@ -351,6 +351,10 @@ int main(int argc, char * argv [])
   int fuses_updated = 0;
 #if !defined(WIN32NATIVE)
   char  * homedir;
+#endif
+
+#ifdef _MSC_VER
+  _set_printf_count_output(1);
 #endif
 
   /*
@@ -706,7 +710,7 @@ int main(int argc, char * argv [])
   avrdude_message(MSG_NOTICE, "\n%s: Version %s, compiled on %s at %s\n"
                     "%sCopyright (c) 2000-2005 Brian Dean, http://www.bdmicro.com/\n"
                     "%sCopyright (c) 2007-2014 Joerg Wunsch\n"
-                    "%sModified 2019 by Alexander Weber\n\n",
+                    "%sModified 2021 by Alexander Weber\n\n",
                     progname, version, __DATE__, __TIME__, progbuf, progbuf, progbuf);
   avrdude_message(MSG_NOTICE, "%sSystem wide configuration file is \"%s\"\n",
             progbuf, sys_config);
@@ -946,7 +950,7 @@ int main(int argc, char * argv [])
    */
   if (port[0] == 0) {
     avrdude_message(MSG_INFO, "\n%s: no port has been specified on the command line "
-            "or the config file\n",
+            "or in the config file\n",
             progname);
     avrdude_message(MSG_INFO, "%sSpecify a port using the -P option and try again\n\n",
             progbuf);
@@ -1071,7 +1075,7 @@ int main(int argc, char * argv [])
       rc = avr_signature(pgm, p);
       if (rc != 0) {
         // -68 == -(0x44) == -(RSP3_FAIL_OCD_LOCKED)
-        if ((rc == -68) && (p->flags & AVRPART_HAS_UPDI) && (attempt < 1)) {
+        if ((rc == -68 || rc == -67) && (p->flags & AVRPART_HAS_UPDI) && (attempt < 1)) {
           attempt++;
           if (pgm->read_sib) {
              // Read SIB and compare FamilyID
@@ -1201,7 +1205,7 @@ int main(int argc, char * argv [])
 	  //Check if the programmer just doesn't support reading
   	  if (rc == -5)
 			{
-				avrdude_message(MSG_NOTICE, "%s: safemode: Fuse reading not support by programmer.\n"
+				avrdude_message(MSG_NOTICE, "%s: safemode: Fuse reading not supported by programmer.\n"
 						"              Safemode disabled.\n", progname);
 			}
       else
@@ -1327,8 +1331,11 @@ int main(int argc, char * argv [])
       }
     }
     
+    AVRMEM * m;
+    
     /* Now check what fuses are against what they should be */
-    if (safemodeafter_fuse != safemode_fuse) {
+    m = avr_locate_mem(p, "fuse");
+    if (compare_memory_masked(m, safemodeafter_fuse, safemode_fuse)) {
       fuses_updated = 1;
       avrdude_message(MSG_INFO, "%s: safemode: fuse changed! Was %x, and is now %x\n",
               progname, safemode_fuse, safemodeafter_fuse);
@@ -1356,7 +1363,8 @@ int main(int argc, char * argv [])
     }
 
     /* Now check what fuses are against what they should be */
-    if (safemodeafter_lfuse != safemode_lfuse) {
+    m = avr_locate_mem(p, "lfuse");
+    if (compare_memory_masked(m, safemodeafter_lfuse, safemode_lfuse)) {
       fuses_updated = 1;
       avrdude_message(MSG_INFO, "%s: safemode: lfuse changed! Was %x, and is now %x\n",
               progname, safemode_lfuse, safemodeafter_lfuse);
@@ -1384,7 +1392,8 @@ int main(int argc, char * argv [])
     }
 
     /* Now check what fuses are against what they should be */
-    if (safemodeafter_hfuse != safemode_hfuse) {
+    m = avr_locate_mem(p, "hfuse");
+    if (compare_memory_masked(m, safemodeafter_hfuse, safemode_hfuse)) {
       fuses_updated = 1;
       avrdude_message(MSG_INFO, "%s: safemode: hfuse changed! Was %x, and is now %x\n",
               progname, safemode_hfuse, safemodeafter_hfuse);
@@ -1409,7 +1418,8 @@ int main(int argc, char * argv [])
     }
 
     /* Now check what fuses are against what they should be */
-    if (safemodeafter_efuse != safemode_efuse) {
+    m = avr_locate_mem(p, "efuse");
+    if (compare_memory_masked(m, safemodeafter_efuse, safemode_efuse)) {
       fuses_updated = 1;
       avrdude_message(MSG_INFO, "%s: safemode: efuse changed! Was %x, and is now %x\n",
               progname, safemode_efuse, safemodeafter_efuse);

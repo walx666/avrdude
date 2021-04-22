@@ -271,7 +271,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
         if (rc == 0)
           avrdude_message(MSG_INFO, "%s: Flash is empty, resulting file has no contents.\n",
                         progname);
-        avrdude_message(MSG_INFO, "%s: writing output file \"%s\"\n",
+      avrdude_message(MSG_INFO, "%s: writing output file \"%s\"\n",
                       progname,
                       strcmp(upd->filename, "-")==0 ? "<stdout>" : upd->filename);
       }
@@ -335,6 +335,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
       avrdude_message(MSG_INFO, "%s: %d bytes of %s written\n", progname,
             vsize, mem->desc);
     }
+
   }
   else if (upd->op == DEVICE_VERIFY) {
     /*
@@ -372,6 +373,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
       avrdude_message(MSG_INFO, "%s: failed to read all of %s memory, rc=%d\n",
               progname, mem->desc, rc);
       pgm->err_led(pgm, ON);
+      avr_free_part(v);
       return -1;
     }
     report_progress (1,1,NULL);
@@ -386,6 +388,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
       avrdude_message(MSG_INFO, "%s: verification error; content mismatch\n",
               progname);
       pgm->err_led(pgm, ON);
+      avr_free_part(v);
       return -1;
     }
 
@@ -483,6 +486,7 @@ int do_op(PROGRAMMER * pgm, struct avrpart * p, UPDATE * upd, enum updateflags f
     }
 
     pgm->vfy_led(pgm, OFF);
+    avr_free_part(v);
   }
   else {
     avrdude_message(MSG_INFO, "%s: invalid update operation (%d) requested\n",

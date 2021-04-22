@@ -40,6 +40,10 @@
 #include "avrdude.h"
 #include "libavrdude.h"
 
+#ifdef _MSC_VER
+#include "msvc/usb_com_helper.h"
+#endif
+
 #ifndef SERIAL_REC_DEF_TIMEOUT_MS
  #define SERIAL_REC_DEF_TIMEOUT_MS 5000
 #endif
@@ -97,7 +101,7 @@ static DWORD serial_baud_lookup(long baud)
    * If a non-standard BAUD rate is used, issue
    * a warning (if we are verbose) and return the raw rate
    */
-  avrdude_message(MSG_NOTICE, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld\n",
+  avrdude_message(MSG_NOTICE, "%s: serial_baud_lookup(): Using non-standard baud rate: %ld",
               progname, baud);
 
   return baud;
@@ -258,6 +262,13 @@ static int ser_open(char * port, union pinfo pinfo, union filedescriptor *fdp)
 		return -1;
 #endif
 	}
+
+#ifdef _MSC_VER
+	if (win32_find_usb_com_port(port, &newname, true, true, true) >= 0)
+	{
+		port = newname;
+	}
+#endif
 
 	if (strncasecmp(port, "com", strlen("com")) == 0) {
 

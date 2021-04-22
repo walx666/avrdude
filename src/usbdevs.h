@@ -54,7 +54,11 @@
 #define USBTINY_VENDOR_DEFAULT  0x1781
 #define USBTINY_PRODUCT_DEFAULT 0x0C9F
 
+#define MICRONUCLEUS_VID 0x16D0
+#define MICRONUCLEUS_PID 0x0753
 
+#define TEENSY_VID 0x16C0
+#define TEENSY_PID 0x0478
 
 /* JTAGICEmkII, AVRISPmkII */
 #define USBDEV_BULK_EP_WRITE_MKII 0x02
@@ -69,7 +73,14 @@
 #define USBDEV_BULK_EP_WRITE_3    0x01
 #define USBDEV_BULK_EP_READ_3     0x82
 #define USBDEV_EVT_EP_READ_3      0x83
-#define USBDEV_MAX_XFER_3    512
+/* 
+ * The mk3 tools (type jtagice3) have a maxPayloadSize of 912. When
+ * accessing paged memory the access should be limited to pageSize.
+ * When accessing memory without pageSize the payload should be
+ * limited to 256.
+ */
+#define USBDEV_MAX_XFER_3         912
+#define USBDEV_MAX_XFER_3_UNPAGED 256
 
 /*
  * When operating on the JTAGICE3, usbdev_recv_frame() returns an

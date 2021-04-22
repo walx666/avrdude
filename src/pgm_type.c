@@ -40,6 +40,8 @@
 #include "jtagmkII.h"
 #include "jtag3.h"
 #include "linuxgpio.h"
+#include "linuxspi.h"
+#include "micronucleus.h"
 #include "par.h"
 #include "pickit2.h"
 #include "ppi.h"
@@ -47,6 +49,7 @@
 #include "stk500.h"
 #include "stk500generic.h"
 #include "stk500v2.h"
+#include "teensy.h"
 #include "usbasp.h"
 #include "usbtiny.h"
 #include "wiring.h"
@@ -81,6 +84,8 @@ const PROGRAMMER_TYPE programmers_types[] = {
         {"jtagice3_dw", jtag3_dw_initpgm, jtag3_dw_desc},
         {"jtagice3_isp", stk500v2_jtag3_initpgm, stk500v2_jtag3_desc},
         {"linuxgpio", linuxgpio_initpgm, linuxgpio_desc},
+        {"linuxspi", linuxspi_initpgm, linuxspi_desc},
+        {"micronucleus", micronucleus_initpgm, micronucleus_desc},
         {"par", par_initpgm, par_desc},
         {"pickit2", pickit2_initpgm, pickit2_desc},
         {"serbb", serbb_initpgm, serbb_desc},
@@ -92,6 +97,7 @@ const PROGRAMMER_TYPE programmers_types[] = {
         {"stk600", stk600_initpgm, stk600_desc},
         {"stk600hvsp", stk600hvsp_initpgm, stk600hvsp_desc},
         {"stk600pp", stk600pp_initpgm, stk600pp_desc},
+        {"teensy", teensy_initpgm, teensy_desc},
         {"usbasp", usbasp_initpgm, usbasp_desc},
         {"usbtiny", usbtiny_initpgm, usbtiny_desc},
         {"wiring", wiring_initpgm, wiring_desc},

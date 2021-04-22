@@ -30,12 +30,12 @@ extern int quell_progress; /* quiteness level (-q, -qq) */
 
 int avrdude_message(const int msglvl, const char *format, ...);
 
-#define MSG_INFO (0)    /* no -v option, can be supressed with -qq */
-#define MSG_NOTICE (1)  /* displayed with -v */
+#define MSG_INFO    (0) /* no -v option, can be supressed with -qq */
+#define MSG_NOTICE  (1) /* displayed with -v */
 #define MSG_NOTICE2 (2) /* displayed with -vv, used rarely */
-#define MSG_DEBUG (3)   /* displayed with -vvv */
-#define MSG_TRACE (4)   /* displayed with -vvvv, show trace commuication */
-#define MSG_TRACE2 (5)  /* displayed with -vvvvv */
+#define MSG_DEBUG   (3) /* displayed with -vvv */
+#define MSG_TRACE   (4) /* displayed with -vvvv, show trace commuication */
+#define MSG_TRACE2  (5) /* displayed with -vvvvv */
 
 #if !defined(FALSE) && !defined(TRUE)
 #define FALSE 0
@@ -48,18 +48,21 @@ int avrdude_message(const int msglvl, const char *format, ...);
 #include "ac_cfg.h"
 #include <windows.h>
 
+#ifdef _MSC_VER
+#include "msvc/msvc_compat.h"
+#endif
+
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #if !defined(HAVE_USLEEP)
-    int usleep(unsigned int us);
+int usleep(unsigned int us);
 #endif
 
 #if !defined(HAVE_GETTIMEOFDAY)
-    struct timezone;
-    int gettimeofday(struct timeval *tv, struct timezone *tz);
+struct timezone;
+int gettimeofday(struct timeval *tv, struct timezone *tz);
 #endif /* HAVE_GETTIMEOFDAY */
 
 #ifdef __cplusplus

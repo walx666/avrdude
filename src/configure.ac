@@ -43,7 +43,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_YACC
-AC_PROG_LEX
+AC_PROG_LEX(noyywrap)
 AN_MAKEVAR([AR], [AC_PROG_AR])
 AN_PROGRAM([ar], [AC_PROG_AR])
 AC_DEFUN([AC_PROG_AR], [AC_CHECK_TARGET_TOOL(AR, ar, :)])
@@ -78,12 +78,13 @@ dnl Makefile.am:77: compiling `config_gram.c' with per-target flags requires `AM
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-AC_CHECK_LIB([termcap], [tputs])
+AC_CHECK_LIB([ncurses], [tputs])
 AC_CHECK_LIB([ncurses], [tputs])
 AC_CHECK_LIB([readline], [readline])
 AH_TEMPLATE([HAVE_LIBELF],
             [Define if ELF support is enabled via libelf])
-AC_CHECK_LIB([elf], [elf_getshdrstrndx], [have_libelf=yes])
+AC_CHECK_HEADERS([libelf.h libelf/libelf.h], [have_libelf=yes])
+#AC_CHECK_LIB([elf], [elf_getshdrstrndx], [have_libelf=yes])
 if test x$have_libelf = xyes; then
    case $target in
        *)
@@ -99,7 +100,8 @@ AC_SEARCH_LIBS([gethostent], [nsl])
 AC_SEARCH_LIBS([setsockopt], [socket])
 AH_TEMPLATE([HAVE_LIBUSB],
             [Define if USB support is enabled via libusb])
-AC_CHECK_LIB([usb], [usb_get_string_simple], [have_libusb=yes])
+AC_CHECK_HEADERS([lusb0_usb.h usb.h], [have_libusb=yes])
+#AC_CHECK_LIB([usb], [usb_get_string_simple], [have_libusb=yes])
 if test x$have_libusb = xyes; then
    case $target in
        *-*-darwin*)
@@ -117,7 +119,7 @@ AC_SUBST(LIBUSB, $LIBUSB)
 
 AC_ARG_ENABLE(
 	[libusb_1_0],
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--disable-libusb_1_0],
 		[Allow to build with libusb instead of libusb_1_0 if both are present]),
 	[case "${enableval}" in
@@ -129,8 +131,10 @@ AC_ARG_ENABLE(
 
 AH_TEMPLATE([HAVE_LIBUSB_1_0],
             [Define if USB support is enabled via libusb 1.0])
-AC_CHECK_LIB([usb-1.0], [libusb_init], [have_libusb_1_0=yes])
+AC_CHECK_HEADERS([libusb-1.0/libusb.h libusb.h], [have_libusb_1_0=yes])
 if test x$have_libusb_1_0 = xyes && test x$enabled_libusb_1_0 = xyes; then
+#AC_CHECK_LIB([usb-1.0], [libusb_init], [have_libusb_1_0=yes])
+#if test x$have_libusb_1_0 = xyes; then
    case $target in
        *-*-darwin*)
                LIBUSB_1_0="-lusb-1.0 -framework CoreFoundation -framework IOKit"
@@ -168,6 +172,9 @@ AC_SUBST(LIBUSB_1_0, $LIBUSB_1_0)
 AH_TEMPLATE([HAVE_LIBHIDAPI],
             [Define if HID support is enabled via libhidapi])
 AC_SEARCH_LIBS([hid_init], [hidapi hidapi-libusb hidapi-hidraw], [have_libhidapi=yes])
+#for _hidapi_lib in hidapi hidapi-hidraw hidapi-libusb; do
+#   PKG_CHECK_MODULES([hidapi],[$_hidapi_lib],[have_libhidapi=yes],[true])
+#done
 if test x$have_libhidapi = xyes; then
    case $target in
        *-*-darwin*)
@@ -189,7 +196,8 @@ AH_TEMPLATE([HAVE_LIBFTDI],
             [Define if FTDI support is enabled via libftdi])
 AH_TEMPLATE([HAVE_LIBFTDI_TYPE_232H],
             [Define if libftdi supports FT232H, libftdi version >= 0.20])
-AC_CHECK_LIB([ftdi1], [ftdi_new], [have_libftdi1=yes], [], [$LIBUSB_1_0])
+AC_CHECK_HEADERS([libftdi1/ftdi.h],  [have_libftdi1=yes])
+#AC_CHECK_LIB([ftdi1], [ftdi_new], [have_libftdi1=yes], [], [-lusb-1.0])
 AC_CHECK_LIB([ftdi], [ftdi_usb_get_strings], [have_libftdi=yes], [], [-lusb])
 if test x$have_libftdi1 = xyes; then
    LIBFTDI1="-lftdi1"
@@ -222,7 +230,8 @@ AC_CHECK_HEADERS([ddk/hidsdi.h],,,[#include <windows.h>
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
-AC_HEADER_TIME
+#AC_HEADER_TIME
+AC_CHECK_HEADERS([sys/time.h])
 
 AC_CHECK_HEADERS([netinet/in.h])
 
@@ -237,9 +246,12 @@ SAVED_LIBS="${LIBS}"
 case $target in
         *-*-mingw32* | *-*-cygwin* | *-*-windows*)
 		LIBHID="-lhid -lsetupapi"
-		if test $ac_cv_header_ddk_hidsdi_h = yes
+		if test x$ac_cv_header_ddk_hidsdi_h = xyes
 		then
 			HIDINCLUDE="#include <ddk/hidsdi.h>"
+		elif test x$ac_cv_header_hidsdi_h = xyes
+		then
+			HIDINCLUDE="#include <hidsdi.h>"
 		else
 			HIDINCLUDE="#include \"my_ddk_hidsdi.h\""
 		fi
@@ -252,7 +264,9 @@ LIBS="${LIBS} ${LIBHID}"
 
 AH_TEMPLATE([HAVE_LIBHID],
             [Define if HID support is enabled via the Win32 DDK])
-AC_TRY_LINK([#include <windows.h>
+AC_LINK_IFELSE([AC_LANG_PROGRAM([
+[
+#include <windows.h>
 #include <setupapi.h>
 $HIDINCLUDE],
 [int
@@ -263,7 +277,7 @@ main(void)
 
     return 0;
 }
-], [have_libhid=yes], [have_libhid=no])
+]])], [have_libhid=yes], [have_libhid=no])
 AC_MSG_RESULT([$have_libhid])
 if test x$have_libhid = xyes; then
    AC_DEFINE([HAVE_LIBHID])
@@ -284,7 +298,7 @@ AC_CHECK_TYPES([ulong_t], [], [], [#include <sys/types.h>])
 
 AC_ARG_ENABLE(
 	[versioned-doc],
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-versioned-doc],
 		[install docs in directory with version name (default)]),
 	[case "${enableval}" in
@@ -302,7 +316,7 @@ fi
 
 AC_ARG_ENABLE(
 	[doc],
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-doc],
 		[Enable building documents]),
 	[case "${enableval}" in
@@ -314,7 +328,7 @@ AC_ARG_ENABLE(
 
 AC_ARG_ENABLE(
 	[parport],
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-parport],
 		[Enable accessing parallel ports(default)]),
 	[case "${enableval}" in
@@ -326,7 +340,7 @@ AC_ARG_ENABLE(
 	
 AC_ARG_ENABLE(
 	[linuxgpio],
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-linuxgpio],
 		[Enable the Linux sysfs GPIO interface programmer type]),
 	[case "${enableval}" in
@@ -335,6 +349,18 @@ AC_ARG_ENABLE(
 		*)   AC_MSG_ERROR(bad value ${enableval} for enable-linuxgpio option) ;;
 		esac],
 	[enabled_linuxgpio=no])	
+
+AC_ARG_ENABLE(
+	[linuxspi],
+	AS_HELP_STRING(
+		[--enable-linuxspi],
+		[Enable the Linux SPIDEV interface programmer type]),
+	[case "${enableval}" in
+		yes) enabled_linuxspi=yes ;;
+		no)  enabled_linuxspi=no ;;
+		*)   AC_MSG_ERROR(bad value ${enableval} for enable-linuxspi option) ;;
+		esac],
+	[enabled_linuxspi=no])
 
 DIST_SUBDIRS_AC='doc windows'
 
@@ -413,6 +439,14 @@ else
 fi
 
 
+if test "$enabled_linuxspi" = "yes"; then
+	AC_DEFINE(HAVE_LINUXSPI, 1, [Linux SPI support enabled])
+	confsubst="$confsubst -e /^@HAVE_LINUXSPI_/d"
+else
+	confsubst="$confsubst -e /^@HAVE_LINUXSPI_BEGIN@/,/^@HAVE_LINUXSPI_END@/d"
+fi
+
+
 # If we are compiling with gcc, enable all warning and make warnings errors.
 if test "$GCC" = yes; then
     ENABLE_WARNINGS="-Wall"
@@ -423,7 +457,8 @@ if test "$GCC" = yes; then
 	safe_CFLAGS=$CFLAGS
 	CFLAGS="$ENABLE_WARNINGS -Wno-pointer-sign"
 
-	AC_TRY_COMPILE(, [ int main () { return 0 ; } ], [
+#	AC_TRY_COMPILE(, [ int main () { return 0 ; } ], [
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[ int main () { return 0 ; } ])], [
 		no_pointer_sign=yes
 		AC_MSG_RESULT([yes]) 
 		], [
@@ -451,7 +486,8 @@ case $target in
 			safe_CFLAGS="$CFLAGS"
 			CFLAGS="$ENABLE_WARNINGS -mno-cygwin"
 
-			AC_TRY_COMPILE(, [ int main () { return 0 ; } ], [
+#			AC_TRY_COMPILE(, [ int main () { return 0 ; } ], [
+			AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[ int main () { return 0 ; } ])], [
 				no_cygwin=yes
 				AC_MSG_RESULT([yes])
 				], [
@@ -475,7 +511,7 @@ case $target in
 
 		safe_LDFLAGS="$LDFLAGS"
 		LDFLAGS="${LDFLAGS} -static"
-		AC_TRY_LINK(, [ int main () { return 0 ; } ], [
+		AC_LINK_IFELSE([AC_LANG_PROGRAM(, [ int main () { return 0 ; } ])], [
 			can_link_static=yes
 			AC_MSG_RESULT([yes])
 			], [
@@ -591,5 +627,11 @@ if test x$enabled_linuxgpio = xyes; then
    echo "ENABLED    linuxgpio"
 else
    echo "DISABLED   linuxgpio"
+fi
+
+if test x$enabled_linuxspi = xyes; then
+   echo "ENABLED    linuxspi"
+else
+   echo "DISABLED   linuxspi"
 fi
 
