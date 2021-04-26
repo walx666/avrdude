@@ -72,6 +72,8 @@ src/external/libhidapi/Release/
 src/external/libusb/Debug/
 src/external/libusb/Release/
 
+src/msvc/avrdude.aps
+
 src/windows/.deps/
 
 build/**
