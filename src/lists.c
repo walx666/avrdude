@@ -807,7 +807,7 @@ lget_n ( LISTID lid, unsigned int n )
 
   CKLMAGIC(l);
 
-  if ((n<1)||(n>lsize(l))) {
+  if ((n<1)||((int)n>lsize(l))) {
     return NULL;
   }
 
@@ -848,7 +848,7 @@ lget_ln ( LISTID lid, unsigned int n )
 
   CKLMAGIC(l);
 
-  if ((n<1)||(n>lsize(l))) {
+  if ((n<1)||((int)n>lsize(l))) {
     return NULL;
   }
 
@@ -956,7 +956,7 @@ lins_n ( LISTID lid, void * data_ptr, unsigned int n )
 
   CKLMAGIC(l);
 
-  if ((n<1)||(n>(l->num+1))) {
+  if ((n<1)||((int)n>(l->num+1))) {
     return -1;
   }
 
@@ -1197,7 +1197,7 @@ lrmv_n ( LISTID lid, unsigned int n )
 
   CKLMAGIC(l);
 
-  if ((n<1)||(n>l->num)) {
+  if ((n<1)||((int)n>l->num)) {
     return NULL;
   }
 

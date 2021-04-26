@@ -49,7 +49,7 @@ gelf_getphdr(Elf *elf, int ndx, GElf_Phdr *dst) {
     if (!tmp) {
 	return NULL;
     }
-    if (ndx < 0 || ndx >= elf->e_phnum) {
+    if (ndx < 0 || (size_t)ndx >= elf->e_phnum) {
 	seterr(ERROR_BADINDEX);
 	return NULL;
     }
@@ -109,7 +109,7 @@ gelf_update_phdr(Elf *elf, int ndx, GElf_Phdr *src) {
     if (!tmp) {
 	return 0;
     }
-    if (ndx < 0 || ndx >= elf->e_phnum) {
+    if (ndx < 0 || (size_t)ndx >= elf->e_phnum) {
 	seterr(ERROR_BADINDEX);
 	return 0;
     }

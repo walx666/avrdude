@@ -387,7 +387,7 @@ int avr_crc(PROGRAMMER *pgm, AVRPART *p, AVRMEM *mem, unsigned int page_size, un
   //  avr_get_output(readop, res, &data);
 
   memset(res, 0, sizeof(res));
-  r = pgm->crc(pgm, p, mem, page_size, addr, n_bytes, &res);
+  r = pgm->crc(pgm, p, mem, page_size, addr, n_bytes, (unsigned int *)&res);
   data = (((unsigned int)res[0] << 8) | res[1]);
   mem->crc_calc = data;
 
